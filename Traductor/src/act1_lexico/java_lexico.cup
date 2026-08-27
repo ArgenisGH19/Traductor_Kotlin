@@ -1,0 +1,21 @@
+/*
+Nombres completos
+java
+*/
+package act1_lexico;
+import java_cup.runtime.*;
+
+/* Pasos preliminares para configurar y usar el escáner. */
+init with {: scanner.init(); :};
+scan with {: return scanner.next_token(); :};
+
+/* Terminales (tokens devueltos por el escáner). */
+terminal ABSTRACT, BOOLEAN, BREAK,PUBLIC, IDENTIFIER, INTEGER_LITERAL, STRING_LITERAL, EQ, EQEQ, PLUS;
+
+/* No terminales */
+non terminal inicio;
+
+start with inicio;
+
+inicio ::= ABSTRACT | BOOLEAN | BREAK
+         ;
