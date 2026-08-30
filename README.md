@@ -1,0 +1,3 @@
+es un traductor y simulador de lenguaje desarrollado en Java, diseñado para procesar, transformar y simular la ejecución de sintaxis de Kotlin. Este proyecto analiza código fuente en Java/texto y genera o simula su representación equivalente en Kotlin.
+Características PrincipalesTraducción de Sintaxis: Convierte estructuras de control, declaraciones de variables y funciones de Java a su equivalente funcional en Kotlin.Simulador de Ejecución: 
+Evalúa el comportamiento de las expresiones traducidas para verificar la validez del código generado.Motor de Análisis en Java: Construido enteramente en Java utilizando patrones de diseño para el análisis léxico y sintáctico (Lexer/Parser).

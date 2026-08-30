@@ -1,0 +1,137 @@
+as
+as?
+break
+class
+continue
+do
+else
+false
+for
+fun
+if
+in
+!in
+is
+!is
+null
+object
+package
+return
+super
+this
+throw
+true
+try
+typealias
+typeof
+val
+var
+when
+while
+by
+catch
+constructor
+delegate
+dynamic
+field
+file
+finally
+get
+import
+init
+param
+property
+receiver
+set
+setparam
+where
+it
+actual
+abstract
+annotation
+companion
+const
+crossinline
+data
+enum
+expect
+external
+final
+infix
+inline
+inner
+internal
+lateinit
+noinline
+open
+operator
+out
+override
+private
+protected
+public
+reified
+sealed
+suspend
+tailrec
+vararg
+Any
+Nothing
+Unit
+Int
+Long
+Short
+Byte
+Float
+Double
+Boolean
+Char
+String
+Array
+// ==========================================
+// 1. IDENTIFICADORES
+// ==========================================
+miVariable
+_contador
+acumulador2026
+calcularSuma Total
+
+// ==========================================
+// 2. LITERALES NUMÉRICOS
+// ==========================================
+42
+1050
+0.1416
+100.50
+
+// ==========================================
+// 3. OPERADORES Y SÍMBOLOS
+// Operadores Aritméticos
++ - * / %
+
+// Operadores Relacionales
+< > <= >= == !=
+
+// Operadores Lógicos
+&& || !
+
+// Operadores Especiales de Kotlin
+?: ?. !! -> ..
+
+// Símbolos y Agrupación
+( ) { } [ ] , ; : .
+
+// ==========================================
+// 4. CADENAS DE TEXTO (STRINGS CON ESCAPES)
+// ==========================================
+"Hola Mundo"
+"Cadena con comilla interna: \"texto\""
+"Salto de línea\ny tabulación\t"
+
+// ==========================================
+// 5. COMENTARIOS (DEBEN SER IGNORADOS POR EL LEXER)
+// ==========================================
+// Este es un comentario de una sola línea
+/* Este es un comentario
+   de múltiples líneas 
+   o de bloque */
