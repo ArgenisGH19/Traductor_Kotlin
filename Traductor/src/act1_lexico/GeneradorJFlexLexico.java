@@ -1,29 +1,40 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package act1_lexico;
 
-import jflex.Main;
-//import jflex.exceptions.SilentExit;
+/*
+Equipo EM02 KOTLIN
+Gutiérrez Hurtado Argenis Adan
+Becerra Bedoy Pablo
+Rubio Calderon Gerardo Josue
+*/
 
-/**
- *
- * @author Profesor
- */
+import java.io.File;
+
 public class GeneradorJFlexLexico {
     public static void main(String[] args) {
+        // Obtenemos la ruta raíz del proyecto en ejecución
+        String rutaProyecto = System.getProperty("user.dir");
         
-        try {
-            String rutaflex="src/act1_lexico/java_lexico.jflex";
-            
-            String datos[]={rutaflex};
-            
-            Main.generate(datos);
-        } catch (Exception ex) {
-            System.err.println(ex.getMessage());
-            System.getLogger(GeneradorJFlexLexico.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        // Construimos la ruta absoluta hacia tu archivo .jflex
+        String rutaJFlex = rutaProyecto + File.separator + "src" + File.separator + "act1_lexico" + File.separator + "java_lexico.jflex";
+        
+        File archivoJFlex = new File(rutaJFlex);
+        
+        System.out.println("Buscando archivo en: " + archivoJFlex.getAbsolutePath());
+        
+        if (!archivoJFlex.exists()) {
+            System.err.println("¡ERROR! El archivo java_lexico.jflex no existe en esa ruta.");
+            return;
         }
-        
+
+        try {
+            // Se pasa la ruta en un arreglo String[] para evitar la incompatibilidad de tipos
+            String[] parametros = { archivoJFlex.getAbsolutePath() };
+            jflex.Main.generate(parametros);
+            
+            System.out.println("¡ÉXITO! LexerJava.java generado correctamente.");
+        } catch (Exception e) {
+            System.err.println("Ocurrió un error al generar con JFlex:");
+            e.printStackTrace();
+        }
     }
 }

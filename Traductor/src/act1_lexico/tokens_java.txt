@@ -1,4 +1,138 @@
-abstract
-boolean
+as
+as?
 break
+class
+continue
+do
+else
+false
+for
+fun
+if
+in
+!in
+is
+!is
+null
+object
+package
+return
+super
+this
+throw
+true
+try
+typealias
+typeof
+val
+var
+when
+while
+by
+catch
+constructor
+delegate
+dynamic
+field
+file
+finally
+get
+import
+init
+param
+property
+receiver
+set
+setparam
+where
+it
+actual
+abstract
+annotation
+companion
+const
+crossinline
+data
+enum
+expect
+external
+final
+infix
+inline
+inner
+internal
+lateinit
+noinline
+open
+operator
+out
+override
+private
+protected
 public
+reified
+sealed
+suspend
+tailrec
+vararg
+Any
+Nothing
+Unit
+Int
+Long
+Short
+Byte
+Float
+Double
+Boolean
+Char
+String
+Array
+// ==========================================
+// 1. IDENTIFICADORES VÁLIDOS
+// ==========================================
+miVariable
+_contador
+acumulador2026
+
+// ==========================================
+// 2. LITERALES NUMÉRICOS VÁLIDOS
+// ==========================================
+42
+1050
+0.1416
+100.50
+
+// ==========================================
+// 3. OPERADORES Y SÍMBOLOS VÁLIDOS
+// ==========================================
++ - * / %
+< > <= >= == !=
+&& || !
+?: ?. !! -> ..
+( ) { } [ ] , ; : .
+
+// ==========================================
+// 4. CADENAS DE TEXTO VÁLIDAS
+// ==========================================
+"Hola Mundo"
+"Cadena con comilla interna: \"texto\""
+"Salto de línea\ny tabulación\t"
+
+// ==========================================
+// 5. COMENTARIOS VÁLIDOS (IGNORADOS)
+// ==========================================
+// Este es un comentario de una sola línea
+/* Este es un comentario
+   de múltiples líneas 
+   o de bloque */
+
+// ==========================================
+// 6. CASOS DE PRUEBA: ERRORES LEXICOS (NUEVOS)
+// ==========================================
+val 99variable = 10
+val precio = 45.30.5
+val mensaje = "Hola sin cerrar
+val invalido = 01050
+val simbolo = @
+val otroError = #
