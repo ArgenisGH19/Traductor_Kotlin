@@ -1,5 +1,12 @@
 package act1_lexico;
 
+/*
+Equipo EM02 KOTLIN
+Gutiérrez Hurtado Argenis Adan
+Becerra Bedoy Pablo
+Rubio Calderon Gerardo Josue
+*/
+
 import java.io.File;
 
 public class GeneradorJFlexLexico {

@@ -10,6 +10,7 @@ import java_cup.runtime.Symbol;
 %unicode
 %line
 %column
+%char
 
 %{
   private Symbol token(int type) {
@@ -20,12 +21,13 @@ import java_cup.runtime.Symbol;
     return new Symbol(type, yyline + 1, yycolumn + 1, value);
   }
 
-  private void reportError(String message) {
-    System.err.println("ERROR LEXICO [" + (yyline + 1) + ":" + (yycolumn + 1) + "]: " + message + " -> Lexema: '" + yytext() + "'");
+  private Symbol reportError(String tipo, String descripcion) {
+    ManejoErrores.agregar(new ErrorLexico(tipo, yytext(), yyline + 1, yycolumn + 1, descripcion));
+    return token(sym.ERROR, yytext());
   }
 %}
 
-/* Expresiones Regulares */
+/* Expresiones Regulares Básicas */
 WHITE_SPACE     = [ \t\r\n]+
 LETTER          = [a-zA-Z_]
 DIGIT           = [0-9]
@@ -33,7 +35,7 @@ IDENTIFIER      = {LETTER}({LETTER}|{DIGIT})*
 
 INT_LITERAL     = 0 | [1-9]{DIGIT}*
 FLOAT_LITERAL   = (0|[1-9]{DIGIT}*)\.{DIGIT}+[fF]?
-STRING_LITERAL  = \"([^\"\\]|\\.)*\"
+STRING_LITERAL  = \"([^\"\r\n\\]|\\.)*\"
 
 /* Comentarios en Kotlin */
 LINE_COMMENT    = "//".*
@@ -45,7 +47,42 @@ COMMENT         = {LINE_COMMENT} | {BLOCK_COMMENT}
 {WHITE_SPACE} { /* Ignorar */ }
 {COMMENT}     { /* Ignorar */ }
 
-/* Palabras Reservadas y Palabras Clave de Kotlin */
+/* ========================================================
+   1. REGLAS DE MANEJO DE ERRORES LÉXICOS (PRIORIDAD ALTA)
+   ======================================================== */
+
+/* Cadena mal formada: usa .trim() para limpiar el salto de línea al reportar */
+\"([^\"\r\n\\]|\\.)*[\r\n] { 
+    String lexemaLimpio = yytext().trim();
+    ManejoErrores.agregar(new ErrorLexico("CADENA_MAL_FORMADA", lexemaLimpio, yyline + 1, yycolumn + 1, "Cadena de texto sin cerrar comillas en la misma línea"));
+    return token(sym.ERROR, lexemaLimpio);
+}
+
+/* Identificador inválido: inicia con números */
+{DIGIT}+{LETTER}+ { 
+    return reportError("IDENTIFICADOR_INVALIDO", "El identificador no puede iniciar con números"); 
+}
+
+/* Número con ceros iniciales no permitidos (ej. 01050) */
+0{DIGIT}+ { 
+    return reportError("NUMERO_INVALIDO", "Literal numérico octal o cero inicial no permitido"); 
+}
+
+/* Flotante con múltiples puntos (ej. 45.30.5) */
+{DIGIT}+\.{DIGIT}+\.{DIGIT}+ { 
+    return reportError("NUMERO_INVALIDO", "Formato numérico inválido con múltiples puntos"); 
+}
+
+/* Flotante incompleto (ej. 45.) */
+{DIGIT}+\. { 
+    return reportError("NUMERO_INVALIDO", "Flotante incompleto, falta parte decimal"); 
+}
+
+
+/* ========================================================
+   2. PALABRAS RESERVA Y PALABRAS CLAVE DE KOTLIN
+   ======================================================== */
+
 "package"     { return token(sym.PACKAGE); }
 "import"      { return token(sym.IMPORT); }
 "class"       { return token(sym.CLASS); }
@@ -115,7 +152,7 @@ COMMENT         = {LINE_COMMENT} | {BLOCK_COMMENT}
 "this"        { return token(sym.THIS); }
 "super"       { return token(sym.SUPER); }
 "null"        { return token(sym.NULL); }
-"true"        { return token(sym.TRUE); }
+"true"        { return token(sym.TRUE, yytext()); }
 "false"       { return token(sym.FALSE); }
 
 /* Constructores y Bloques de Inicialización */
@@ -127,6 +164,11 @@ COMMENT         = {LINE_COMMENT} | {BLOCK_COMMENT}
 "where"       { return token(sym.WHERE); }
 "out"         { return token(sym.OUT); }
 
+
+/* ========================================================
+   3. OPERADORES Y SÍMBOLOS
+   ======================================================== */
+
 /* Operadores Aritméticos */
 "+"           { return token(sym.PLUS); }
 "-"           { return token(sym.MINUS); }
@@ -134,7 +176,7 @@ COMMENT         = {LINE_COMMENT} | {BLOCK_COMMENT}
 "/"           { return token(sym.DIV); }
 "%"           { return token(sym.MOD); }
 
-/* Operadores Relacionales y de Igualdad de Kotlin */
+/* Operadores Relacionales y de Igualdad */
 "==="         { return token(sym.EQEQEQ); }
 "!=="         { return token(sym.NEQEQEQ); }
 "=="          { return token(sym.EQEQ); }
@@ -150,11 +192,11 @@ COMMENT         = {LINE_COMMENT} | {BLOCK_COMMENT}
 "||"          { return token(sym.OR); }
 "!"           { return token(sym.NOT); }
 
-/* Símbolos Específicos de Kotlin */
-"?:"          { return token(sym.ELVIS); }         /* Elvis operator */
-"?."          { return token(sym.SAFE_CALL); }      /* Safe call */
-"::"          { return token(sym.DOUBLE_COLON); }   /* Reference */
-".."          { return token(sym.RANGE); }          /* Range operator */
+/* Símbolos Específicos */
+"?:"          { return token(sym.ELVIS); }
+"?."          { return token(sym.SAFE_CALL); }
+"::"          { return token(sym.DOUBLE_COLON); }
+".."          { return token(sym.RANGE); }
 "("           { return token(sym.LPAREN); }
 ")"           { return token(sym.RPAREN); }
 "{"           { return token(sym.LBRACE); }
@@ -166,19 +208,30 @@ COMMENT         = {LINE_COMMENT} | {BLOCK_COMMENT}
 "."           { return token(sym.DOT); }
 ":"           { return token(sym.COLON); }
 
-/* Literales e Identificadores */
+
+/* ========================================================
+   4. LITERALES E IDENTIFICADORES VÁLIDOS
+   ======================================================== */
+
 {INT_LITERAL}     { return token(sym.INT_LITERAL, yytext()); }
 {FLOAT_LITERAL}   { return token(sym.FLOAT_LITERAL, yytext()); }
 {STRING_LITERAL}  { return token(sym.STRING_LITERAL, yytext()); }
 {IDENTIFIER}      { return token(sym.IDENTIFIER, yytext()); }
 
-/* Reglas de Manejo de Errores */
-\"[^\"]*          { reportError("Cadena no cerrada"); return token(sym.ERROR, yytext()); }
-0{DIGIT}+         { reportError("Numero invalido (cero inicial)"); return token(sym.ERROR, yytext()); }
-{DIGIT}+\.        { reportError("Flotante incompleto"); return token(sym.ERROR, yytext()); }
-{DIGIT}+{LETTER}+ { reportError("Identificador no valido"); return token(sym.ERROR, yytext()); }
+/* Literales de Carácter Válidos e Inválidos */
+'\\?.' { 
+    return token(sym.CHAR_LITERAL, yytext()); 
+}
+
+'[^'\r\n]*'? { 
+    return reportError("CARACTER_MAL_FORMADO", "Literal de carácter inválido o sin cerrar"); 
+}
+
+
+/* ========================================================
+   5. FALLBACK (CARACTERES NO PERMITIDOS EN EL ALFABETO)
+   ======================================================== */
 
 . { 
-    reportError("Caracter no reconocido");
-    return token(sym.ERROR, yytext());
-} 
+    return reportError("CARACTER_NO_RECONOCIDO", "Carácter no pertenece al lenguaje");
+}
