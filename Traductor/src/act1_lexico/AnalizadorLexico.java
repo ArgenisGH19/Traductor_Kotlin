@@ -19,7 +19,7 @@ public class AnalizadorLexico {
 
             System.out.println("=== INTEGRANTES DEL EQUIPO ===");
             System.out.println("1. Becerra Bedoy, Pablo");  
-            System.out.println("2. Argenis Adán Gutiérrez Hurtado");
+            System.out.println("2. Argenis Adan Gutierrez Hurtado");
             System.out.println("3. Gerardo Josue Rubio Calderon");
             System.out.println("=========================================================\n");
             
@@ -37,7 +37,7 @@ public class AnalizadorLexico {
                 
                 // Si el token capturado NO es un error léxico, mostramos el token válido
                 if (token.sym != sym.ERROR) {
-                    System.out.println("Token válido -> ID (sym): " + token.sym + " | Valor: " + token.value);
+                    System.out.println("Token valido -> ID (sym): " + token.sym + " | Valor: " + token.value);
                 }
             }
             
@@ -46,7 +46,7 @@ public class AnalizadorLexico {
             ManejoErrores.mostrarErrores();
             
         } catch (FileNotFoundException ex) {
-            System.err.println("¡Error! No se encontró el archivo de texto. Verifica la ruta: " + ex.getMessage());
+            System.err.println("¡Error! No se encontro el archivo de texto. Verifica la ruta: " + ex.getMessage());
         } catch (IOException ex) {
             System.err.println("¡Error de lectura!: " + ex.getMessage());
         } catch (Exception ex) {
@@ -56,7 +56,7 @@ public class AnalizadorLexico {
         System.out.println("\n=========================================================");
         System.out.println("=== FIN DE EJECUCIÓN - INTEGRANTES DEL EQUIPO ===");
         System.out.println("1. Becerra Bedoy, Pablo");
-        System.out.println("2. Argenis Adán Gutiérrez Hurtado");
+        System.out.println("2. Argenis Adan Gutierrez Hurtado");
         System.out.println("3. Gerardo Josue Rubio Calderon");
         System.out.println("=========================================================");
     }

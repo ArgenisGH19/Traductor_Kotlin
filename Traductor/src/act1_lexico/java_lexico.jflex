@@ -54,7 +54,7 @@ COMMENT         = {LINE_COMMENT} | {BLOCK_COMMENT}
 /* Cadena mal formada: usa .trim() para limpiar el salto de línea al reportar */
 \"([^\"\r\n\\]|\\.)*[\r\n] { 
     String lexemaLimpio = yytext().trim();
-    ManejoErrores.agregar(new ErrorLexico("CADENA_MAL_FORMADA", lexemaLimpio, yyline + 1, yycolumn + 1, "Cadena de texto sin cerrar comillas en la misma línea"));
+    ManejoErrores.agregar(new ErrorLexico("CADENA_MAL_FORMADA", lexemaLimpio, yyline + 1, yycolumn + 1, "Cadena de texto sin cerrar comillas en la misma linea"));
     return token(sym.ERROR, lexemaLimpio);
 }
 
@@ -65,12 +65,12 @@ COMMENT         = {LINE_COMMENT} | {BLOCK_COMMENT}
 
 /* Número con ceros iniciales no permitidos (ej. 01050) */
 0{DIGIT}+ { 
-    return reportError("NUMERO_INVALIDO", "Literal numérico octal o cero inicial no permitido"); 
+    return reportError("NUMERO_INVALIDO", "Literal numerico octal o cero inicial no permitido"); 
 }
 
 /* Flotante con múltiples puntos (ej. 45.30.5) */
 {DIGIT}+\.{DIGIT}+\.{DIGIT}+ { 
-    return reportError("NUMERO_INVALIDO", "Formato numérico inválido con múltiples puntos"); 
+    return reportError("NUMERO_INVALIDO", "Formato numerico invalido con múltiples puntos"); 
 }
 
 /* Flotante incompleto (ej. 45.) */
@@ -224,7 +224,7 @@ COMMENT         = {LINE_COMMENT} | {BLOCK_COMMENT}
 }
 
 '[^'\r\n]*'? { 
-    return reportError("CARACTER_MAL_FORMADO", "Literal de carácter inválido o sin cerrar"); 
+    return reportError("CARACTER_MAL_FORMADO", "Literal de caracter invalido o sin cerrar"); 
 }
 
 
@@ -233,5 +233,5 @@ COMMENT         = {LINE_COMMENT} | {BLOCK_COMMENT}
    ======================================================== */
 
 . { 
-    return reportError("CARACTER_NO_RECONOCIDO", "Carácter no pertenece al lenguaje");
+    return reportError("CARACTER_NO_RECONOCIDO", "Caracter no pertenece al lenguaje");
 }

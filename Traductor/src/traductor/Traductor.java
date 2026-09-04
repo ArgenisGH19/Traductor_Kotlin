@@ -4,17 +4,26 @@
  */
 package traductor;
 
-/**
- *
- * @author adanG
- */
-public class Traductor {
+import act1_lexico.LexerJava;
+import act1_lexico.ParserJava;
+import java.io.FileReader;
 
-    /**
-     * @param args the command line arguments
-     */
+public class Traductor {
     public static void main(String[] args) {
-        // TODO code application logic here
+        try {
+            // Nombre o ruta de tu archivo de prueba
+            FileReader reader = new FileReader("prueba"); 
+            
+            LexerJava lexer = new LexerJava(reader);
+            ParserJava parser = new ParserJava(lexer);
+            
+            // Inicia el análisis sintáctico
+            parser.parse();
+            
+            System.out.println("\n--- Analisis sintactico completado con exito ---");
+        } catch (Exception e) {
+            System.err.println("Error durante la ejecucion del parser: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
-    
 }

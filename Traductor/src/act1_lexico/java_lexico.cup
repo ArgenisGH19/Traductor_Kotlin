@@ -1,6 +1,5 @@
 /*
  INTEGRANTES: Argenis Adán Gutiérrez Hurtado, Gerardo Josue Rubio Calderon, Pablo Becerra Bedoy
-
 */
 package act1_lexico;
 
@@ -28,9 +27,34 @@ terminal VAL, VAR, FUN, CLASS, INTERFACE, OBJECT, TYPEALIAS, TYPEOF,
 terminal String IDENTIFIER, INT_LITERAL, LONG_LITERAL, FLOAT_LITERAL, DOUBLE_LITERAL, CHAR_LITERAL, STRING_LITERAL, ERROR;
 
 /* NO TERMINALES */
-non terminal inicio;
+non terminal archivo, paquete_opt, importacion_list, paquete, importacion, ubicacion, clase_principal, identificador;
+
+/* REGLA INICIAL */
+start with archivo;
 
 /* REGLAS GRAMATICALES */
-start with inicio;
 
-inicio ::= ;
+archivo ::= paquete_opt importacion_list clase_principal
+    {: System.out.println("Regla reconocida: archivo"); :};
+
+paquete_opt ::= paquete
+    | /* vacio */;
+
+importacion_list ::= importacion_list importacion
+    | /* vacio */;
+
+paquete ::= PACKAGE:p ubicacion SEMICOLON
+    {: System.out.println("Regla reconocida: paquete (Linea " + pleft + ")"); :};
+
+importacion ::= IMPORT:i ubicacion SEMICOLON
+    {: System.out.println("Regla reconocida: importacion (Linea " + ileft + ")"); :};
+
+ubicacion ::= identificador DOT ubicacion
+    | identificador
+    {: System.out.println("Regla reconocida: ubicacion"); :};
+
+clase_principal ::= CLASS:c identificador LBRACE RBRACE
+    {: System.out.println("Regla reconocida: clase_principal (Linea " + cleft + ")"); :};
+
+identificador ::= IDENTIFIER
+    {: System.out.println("Regla reconocida: identificador"); :};

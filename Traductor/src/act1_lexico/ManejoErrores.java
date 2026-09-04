@@ -24,7 +24,7 @@ public class ManejoErrores {
         if (listaErrores.isEmpty()) {
             System.out.println("No se encontraron errores lexicos.");
         } else {
-            System.out.println("=== REPORTES DE ERRORES LÉXICOS ===");
+            System.out.println("=== REPORTES DE ERRORES LEXICOS ===");
             for (ErrorLexico err : listaErrores) {
                 System.out.println(err);
             }

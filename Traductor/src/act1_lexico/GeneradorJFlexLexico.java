@@ -31,9 +31,9 @@ public class GeneradorJFlexLexico {
             String[] parametros = { archivoJFlex.getAbsolutePath() };
             jflex.Main.generate(parametros);
             
-            System.out.println("¡ÉXITO! LexerJava.java generado correctamente.");
+            System.out.println("¡EXITO! LexerJava.java generado correctamente.");
         } catch (Exception e) {
-            System.err.println("Ocurrió un error al generar con JFlex:");
+            System.err.println("Ocurrio un error al generar con JFlex:");
             e.printStackTrace();
         }
     }
