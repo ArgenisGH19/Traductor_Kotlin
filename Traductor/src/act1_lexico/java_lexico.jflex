@@ -13,6 +13,7 @@ import java_cup.runtime.Symbol;
 %char
 
 %{
+  // Este método es la clave: envía la línea y columna exactas al analizador sintactico (CUP)
   private Symbol token(int type) {
     return new Symbol(type, yyline + 1, yycolumn + 1, yytext());
   }
@@ -27,7 +28,7 @@ import java_cup.runtime.Symbol;
   }
 %}
 
-/* Expresiones Regulares Básicas */
+/* Expresiones Regulares Basicas */
 WHITE_SPACE     = [ \t\r\n]+
 LETTER          = [a-zA-Z_]
 DIGIT           = [0-9]
@@ -58,19 +59,19 @@ COMMENT         = {LINE_COMMENT} | {BLOCK_COMMENT}
     return token(sym.ERROR, lexemaLimpio);
 }
 
-/* Identificador inválido: inicia con números */
+/* Identificador invalido: inicia con numeros */
 {DIGIT}+{LETTER}+ { 
-    return reportError("IDENTIFICADOR_INVALIDO", "El identificador no puede iniciar con números"); 
+    return reportError("IDENTIFICADOR_INVALIDO", "El identificador no puede iniciar con numeros"); 
 }
 
-/* Número con ceros iniciales no permitidos (ej. 01050) */
+/* Numero con ceros iniciales no permitidos (ej. 01050) */
 0{DIGIT}+ { 
     return reportError("NUMERO_INVALIDO", "Literal numerico octal o cero inicial no permitido"); 
 }
 
-/* Flotante con múltiples puntos (ej. 45.30.5) */
+/* Flotante con multiples puntos (ej. 45.30.5) */
 {DIGIT}+\.{DIGIT}+\.{DIGIT}+ { 
-    return reportError("NUMERO_INVALIDO", "Formato numerico invalido con múltiples puntos"); 
+    return reportError("NUMERO_INVALIDO", "Formato numerico invalido con multiples puntos"); 
 }
 
 /* Flotante incompleto (ej. 45.) */
@@ -210,7 +211,7 @@ COMMENT         = {LINE_COMMENT} | {BLOCK_COMMENT}
 
 
 /* ========================================================
-   4. LITERALES E IDENTIFICADORES VÁLIDOS
+   4. LITERALES E IDENTIFICADORES VaLIDOS
    ======================================================== */
 
 {INT_LITERAL}     { return token(sym.INT_LITERAL, yytext()); }
@@ -218,7 +219,7 @@ COMMENT         = {LINE_COMMENT} | {BLOCK_COMMENT}
 {STRING_LITERAL}  { return token(sym.STRING_LITERAL, yytext()); }
 {IDENTIFIER}      { return token(sym.IDENTIFIER, yytext()); }
 
-/* Literales de Carácter Válidos e Inválidos */
+/* Literales de Caracter Validos e Invalidos */
 '\\?.' { 
     return token(sym.CHAR_LITERAL, yytext()); 
 }

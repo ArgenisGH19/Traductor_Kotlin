@@ -31,10 +31,12 @@ public class ParserJava extends java_cup.runtime.lr_parser {
   /** Production table. */
   protected static final short _production_table[][] = 
     unpackFromStrings(new String[] {
-    "\000\014\000\002\002\004\000\002\002\005\000\002\003" +
-    "\003\000\002\003\002\000\002\004\004\000\002\004\002" +
-    "\000\002\005\005\000\002\006\005\000\002\007\005\000" +
-    "\002\007\003\000\002\010\006\000\002\011\003" });
+    "\000\020\000\002\002\004\000\002\002\005\000\002\002" +
+    "\004\000\002\002\004\000\002\002\003\000\002\002\003" +
+    "\000\002\003\005\000\002\003\005\000\002\004\004\000" +
+    "\002\004\003\000\002\005\005\000\002\005\005\000\002" +
+    "\007\003\000\002\007\005\000\002\006\006\000\002\006" +
+    "\005" });
 
   /** Access to production table. */
   public short[][] production_table() {return _production_table;}
@@ -42,19 +44,24 @@ public class ParserJava extends java_cup.runtime.lr_parser {
   /** Parse-action table. */
   protected static final short[][] _action_table = 
     unpackFromStrings(new String[] {
-    "\000\026\000\010\007\ufffe\025\006\026\ufffe\001\002\000" +
-    "\006\007\ufffc\026\ufffc\001\002\000\004\002\016\001\002" +
-    "\000\004\163\012\001\002\000\006\007\uffff\026\uffff\001" +
-    "\002\000\004\160\015\001\002\000\006\160\ufff8\161\013" +
-    "\001\002\000\010\153\ufff6\160\ufff6\161\ufff6\001\002\000" +
-    "\004\163\012\001\002\000\004\160\ufff9\001\002\000\006" +
-    "\007\ufffb\026\ufffb\001\002\000\004\002\001\001\002\000" +
-    "\006\007\022\026\020\001\002\000\004\163\012\001\002" +
-    "\000\004\002\000\001\002\000\004\163\012\001\002\000" +
-    "\006\007\ufffd\026\ufffd\001\002\000\004\153\025\001\002" +
-    "\000\004\154\026\001\002\000\004\002\ufff7\001\002\000" +
-    "\004\160\030\001\002\000\006\007\ufffa\026\ufffa\001\002" +
-    "" });
+    "\000\040\000\012\003\011\004\006\005\013\006\014\001" +
+    "\002\000\004\002\042\001\002\000\004\002\ufffd\001\002" +
+    "\000\006\003\036\150\023\001\002\000\006\005\ufff8\006" +
+    "\ufff8\001\002\000\006\005\013\006\014\001\002\000\004" +
+    "\002\ufffc\001\002\000\006\005\013\006\014\001\002\000" +
+    "\006\003\022\150\023\001\002\000\006\003\015\150\016" +
+    "\001\002\000\004\136\021\001\002\000\004\135\017\001" +
+    "\002\000\004\136\020\001\002\000\004\002\ufff3\001\002" +
+    "\000\004\002\ufff2\001\002\000\004\142\030\001\002\000" +
+    "\006\142\ufff5\143\ufff5\001\002\000\006\142\025\143\026" +
+    "\001\002\000\006\005\ufff7\006\ufff7\001\002\000\004\150" +
+    "\027\001\002\000\006\142\ufff4\143\ufff4\001\002\000\006" +
+    "\005\ufff6\006\ufff6\001\002\000\004\002\uffff\001\002\000" +
+    "\006\005\ufff9\006\ufff9\001\002\000\004\002\ufffe\001\002" +
+    "\000\006\005\013\006\014\001\002\000\004\002\000\001" +
+    "\002\000\004\142\041\001\002\000\006\142\040\143\026" +
+    "\001\002\000\006\005\ufffb\006\ufffb\001\002\000\006\005" +
+    "\ufffa\006\ufffa\001\002\000\004\002\001\001\002" });
 
   /** Access to parse-action table. */
   public short[][] action_table() {return _action_table;}
@@ -62,15 +69,19 @@ public class ParserJava extends java_cup.runtime.lr_parser {
   /** <code>reduce_goto</code> table. */
   protected static final short[][] _reduce_table = 
     unpackFromStrings(new String[] {
-    "\000\026\000\010\002\004\003\003\005\006\001\001\000" +
-    "\004\004\016\001\001\000\002\001\001\000\006\007\007" +
-    "\011\010\001\001\000\002\001\001\000\002\001\001\000" +
-    "\002\001\001\000\002\001\001\000\006\007\013\011\010" +
-    "\001\001\000\002\001\001\000\002\001\001\000\002\001" +
-    "\001\000\006\006\022\010\020\001\001\000\006\007\026" +
-    "\011\010\001\001\000\002\001\001\000\004\011\023\001" +
+    "\000\040\000\014\002\003\003\007\004\011\005\006\006" +
+    "\004\001\001\000\002\001\001\000\002\001\001\000\004" +
+    "\007\036\001\001\000\002\001\001\000\010\004\033\005" +
+    "\006\006\032\001\001\000\002\001\001\000\006\005\031" +
+    "\006\030\001\001\000\004\007\023\001\001\000\002\001" +
     "\001\000\002\001\001\000\002\001\001\000\002\001\001" +
-    "\000\002\001\001\000\002\001\001\000\002\001\001" });
+    "\000\002\001\001\000\002\001\001\000\002\001\001\000" +
+    "\002\001\001\000\002\001\001\000\002\001\001\000\002" +
+    "\001\001\000\002\001\001\000\002\001\001\000\002\001" +
+    "\001\000\002\001\001\000\002\001\001\000\006\005\031" +
+    "\006\034\001\001\000\002\001\001\000\002\001\001\000" +
+    "\002\001\001\000\002\001\001\000\002\001\001\000\002" +
+    "\001\001" });
 
   /** Access to <code>reduce_goto</code> table. */
   public short[][] reduce_table() {return _reduce_table;}
@@ -108,6 +119,26 @@ public class ParserJava extends java_cup.runtime.lr_parser {
   public int error_sym() {return 1;}
 
 
+
+    @Override
+    public void syntax_error(Symbol s) {
+        if (s.left >= 0) {
+            System.err.println("Error sintactico en linea " + s.left + 
+                               ", columna " + s.right + ": se encontro '" + s.value + "'");
+        }
+    }
+
+    @Override
+    public void unrecovered_syntax_error(Symbol s) {
+        if (s.left >= 0) {
+            System.err.println("Error fatal en linea " + s.left + 
+                               ", columna " + s.right + ": se encontro '" + s.value + "'");
+        }
+        System.err.println("El analisis no puede continuar. Abortando...");
+        System.exit(1);
+    }
+
+
 /** Cup generated class to encapsulate user supplied action code.*/
 @SuppressWarnings({"rawtypes", "unchecked", "unused"})
 class CUP$ParserJava$actions {
@@ -133,7 +164,7 @@ class CUP$ParserJava$actions {
       switch (CUP$ParserJava$act_num)
         {
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 0: // $START ::= archivo EOF 
+          case 0: // $START ::= programa EOF 
             {
               Object RESULT =null;
 		int start_valleft = ((java_cup.runtime.Symbol)CUP$ParserJava$stack.elementAt(CUP$ParserJava$top-1)).left;
@@ -147,110 +178,137 @@ class CUP$ParserJava$actions {
           return CUP$ParserJava$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 1: // archivo ::= paquete_opt importacion_list clase_principal 
+          case 1: // programa ::= estructura_paquete lista_importaciones clase_principal 
             {
               Object RESULT =null;
-		 System.out.println("Regla reconocida: archivo"); 
-              CUP$ParserJava$result = parser.getSymbolFactory().newSymbol("archivo",0, ((java_cup.runtime.Symbol)CUP$ParserJava$stack.elementAt(CUP$ParserJava$top-2)), ((java_cup.runtime.Symbol)CUP$ParserJava$stack.peek()), RESULT);
+		 System.out.println("Analisis sintactico finalizado correctamente\n"); 
+              CUP$ParserJava$result = parser.getSymbolFactory().newSymbol("programa",0, ((java_cup.runtime.Symbol)CUP$ParserJava$stack.elementAt(CUP$ParserJava$top-2)), ((java_cup.runtime.Symbol)CUP$ParserJava$stack.peek()), RESULT);
             }
           return CUP$ParserJava$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 2: // paquete_opt ::= paquete 
+          case 2: // programa ::= lista_importaciones clase_principal 
             {
               Object RESULT =null;
-
-              CUP$ParserJava$result = parser.getSymbolFactory().newSymbol("paquete_opt",1, ((java_cup.runtime.Symbol)CUP$ParserJava$stack.peek()), ((java_cup.runtime.Symbol)CUP$ParserJava$stack.peek()), RESULT);
+		 System.out.println("Analisis sintactico finalizado correctamente (Sin paquete)\n"); 
+              CUP$ParserJava$result = parser.getSymbolFactory().newSymbol("programa",0, ((java_cup.runtime.Symbol)CUP$ParserJava$stack.elementAt(CUP$ParserJava$top-1)), ((java_cup.runtime.Symbol)CUP$ParserJava$stack.peek()), RESULT);
             }
           return CUP$ParserJava$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 3: // paquete_opt ::= 
+          case 3: // programa ::= estructura_paquete clase_principal 
             {
               Object RESULT =null;
-
-              CUP$ParserJava$result = parser.getSymbolFactory().newSymbol("paquete_opt",1, ((java_cup.runtime.Symbol)CUP$ParserJava$stack.peek()), RESULT);
+		 System.out.println("Analisis sintactico finalizado correctamente (Sin imports)\n"); 
+              CUP$ParserJava$result = parser.getSymbolFactory().newSymbol("programa",0, ((java_cup.runtime.Symbol)CUP$ParserJava$stack.elementAt(CUP$ParserJava$top-1)), ((java_cup.runtime.Symbol)CUP$ParserJava$stack.peek()), RESULT);
             }
           return CUP$ParserJava$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 4: // importacion_list ::= importacion_list importacion 
+          case 4: // programa ::= clase_principal 
             {
               Object RESULT =null;
-
-              CUP$ParserJava$result = parser.getSymbolFactory().newSymbol("importacion_list",2, ((java_cup.runtime.Symbol)CUP$ParserJava$stack.elementAt(CUP$ParserJava$top-1)), ((java_cup.runtime.Symbol)CUP$ParserJava$stack.peek()), RESULT);
+		 System.out.println("Analisis sintactico finalizado correctamente (Solo clase)\n"); 
+              CUP$ParserJava$result = parser.getSymbolFactory().newSymbol("programa",0, ((java_cup.runtime.Symbol)CUP$ParserJava$stack.peek()), ((java_cup.runtime.Symbol)CUP$ParserJava$stack.peek()), RESULT);
             }
           return CUP$ParserJava$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 5: // importacion_list ::= 
+          case 5: // programa ::= error 
             {
               Object RESULT =null;
-
-              CUP$ParserJava$result = parser.getSymbolFactory().newSymbol("importacion_list",2, ((java_cup.runtime.Symbol)CUP$ParserJava$stack.peek()), RESULT);
+		 parser.unrecovered_syntax_error(cur_token); 
+              CUP$ParserJava$result = parser.getSymbolFactory().newSymbol("programa",0, ((java_cup.runtime.Symbol)CUP$ParserJava$stack.peek()), ((java_cup.runtime.Symbol)CUP$ParserJava$stack.peek()), RESULT);
             }
           return CUP$ParserJava$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 6: // paquete ::= PACKAGE ubicacion SEMICOLON 
+          case 6: // estructura_paquete ::= PACKAGE ruta SEMICOLON 
             {
               Object RESULT =null;
-		int pleft = ((java_cup.runtime.Symbol)CUP$ParserJava$stack.elementAt(CUP$ParserJava$top-2)).left;
-		int pright = ((java_cup.runtime.Symbol)CUP$ParserJava$stack.elementAt(CUP$ParserJava$top-2)).right;
-		Object p = (Object)((java_cup.runtime.Symbol) CUP$ParserJava$stack.elementAt(CUP$ParserJava$top-2)).value;
-		 System.out.println("Regla reconocida: paquete (Linea " + pleft + ")"); 
-              CUP$ParserJava$result = parser.getSymbolFactory().newSymbol("paquete",3, ((java_cup.runtime.Symbol)CUP$ParserJava$stack.elementAt(CUP$ParserJava$top-2)), ((java_cup.runtime.Symbol)CUP$ParserJava$stack.peek()), RESULT);
+		 System.out.println("Paquete reconocido correctamente"); 
+              CUP$ParserJava$result = parser.getSymbolFactory().newSymbol("estructura_paquete",1, ((java_cup.runtime.Symbol)CUP$ParserJava$stack.elementAt(CUP$ParserJava$top-2)), ((java_cup.runtime.Symbol)CUP$ParserJava$stack.peek()), RESULT);
             }
           return CUP$ParserJava$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 7: // importacion ::= IMPORT ubicacion SEMICOLON 
+          case 7: // estructura_paquete ::= PACKAGE error SEMICOLON 
             {
               Object RESULT =null;
-		int ileft = ((java_cup.runtime.Symbol)CUP$ParserJava$stack.elementAt(CUP$ParserJava$top-2)).left;
-		int iright = ((java_cup.runtime.Symbol)CUP$ParserJava$stack.elementAt(CUP$ParserJava$top-2)).right;
-		Object i = (Object)((java_cup.runtime.Symbol) CUP$ParserJava$stack.elementAt(CUP$ParserJava$top-2)).value;
-		 System.out.println("Regla reconocida: importacion (Linea " + ileft + ")"); 
-              CUP$ParserJava$result = parser.getSymbolFactory().newSymbol("importacion",4, ((java_cup.runtime.Symbol)CUP$ParserJava$stack.elementAt(CUP$ParserJava$top-2)), ((java_cup.runtime.Symbol)CUP$ParserJava$stack.peek()), RESULT);
+		 System.out.println("-> [Recuperacion] Se ignoro error en paquete hasta el ';'"); 
+              CUP$ParserJava$result = parser.getSymbolFactory().newSymbol("estructura_paquete",1, ((java_cup.runtime.Symbol)CUP$ParserJava$stack.elementAt(CUP$ParserJava$top-2)), ((java_cup.runtime.Symbol)CUP$ParserJava$stack.peek()), RESULT);
             }
           return CUP$ParserJava$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 8: // ubicacion ::= identificador DOT ubicacion 
+          case 8: // lista_importaciones ::= lista_importaciones importacion 
             {
               Object RESULT =null;
 
-              CUP$ParserJava$result = parser.getSymbolFactory().newSymbol("ubicacion",5, ((java_cup.runtime.Symbol)CUP$ParserJava$stack.elementAt(CUP$ParserJava$top-2)), ((java_cup.runtime.Symbol)CUP$ParserJava$stack.peek()), RESULT);
+              CUP$ParserJava$result = parser.getSymbolFactory().newSymbol("lista_importaciones",2, ((java_cup.runtime.Symbol)CUP$ParserJava$stack.elementAt(CUP$ParserJava$top-1)), ((java_cup.runtime.Symbol)CUP$ParserJava$stack.peek()), RESULT);
             }
           return CUP$ParserJava$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 9: // ubicacion ::= identificador 
+          case 9: // lista_importaciones ::= importacion 
             {
               Object RESULT =null;
-		 System.out.println("Regla reconocida: ubicacion"); 
-              CUP$ParserJava$result = parser.getSymbolFactory().newSymbol("ubicacion",5, ((java_cup.runtime.Symbol)CUP$ParserJava$stack.peek()), ((java_cup.runtime.Symbol)CUP$ParserJava$stack.peek()), RESULT);
+
+              CUP$ParserJava$result = parser.getSymbolFactory().newSymbol("lista_importaciones",2, ((java_cup.runtime.Symbol)CUP$ParserJava$stack.peek()), ((java_cup.runtime.Symbol)CUP$ParserJava$stack.peek()), RESULT);
             }
           return CUP$ParserJava$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 10: // clase_principal ::= CLASS identificador LBRACE RBRACE 
+          case 10: // importacion ::= IMPORT ruta SEMICOLON 
             {
               Object RESULT =null;
-		int cleft = ((java_cup.runtime.Symbol)CUP$ParserJava$stack.elementAt(CUP$ParserJava$top-3)).left;
-		int cright = ((java_cup.runtime.Symbol)CUP$ParserJava$stack.elementAt(CUP$ParserJava$top-3)).right;
-		Object c = (Object)((java_cup.runtime.Symbol) CUP$ParserJava$stack.elementAt(CUP$ParserJava$top-3)).value;
-		 System.out.println("Regla reconocida: clase_principal (Linea " + cleft + ")"); 
-              CUP$ParserJava$result = parser.getSymbolFactory().newSymbol("clase_principal",6, ((java_cup.runtime.Symbol)CUP$ParserJava$stack.elementAt(CUP$ParserJava$top-3)), ((java_cup.runtime.Symbol)CUP$ParserJava$stack.peek()), RESULT);
+		 System.out.println("Importacion reconocida correctamente"); 
+              CUP$ParserJava$result = parser.getSymbolFactory().newSymbol("importacion",3, ((java_cup.runtime.Symbol)CUP$ParserJava$stack.elementAt(CUP$ParserJava$top-2)), ((java_cup.runtime.Symbol)CUP$ParserJava$stack.peek()), RESULT);
             }
           return CUP$ParserJava$result;
 
           /*. . . . . . . . . . . . . . . . . . . .*/
-          case 11: // identificador ::= IDENTIFIER 
+          case 11: // importacion ::= IMPORT error SEMICOLON 
             {
               Object RESULT =null;
-		 System.out.println("Regla reconocida: identificador"); 
-              CUP$ParserJava$result = parser.getSymbolFactory().newSymbol("identificador",7, ((java_cup.runtime.Symbol)CUP$ParserJava$stack.peek()), ((java_cup.runtime.Symbol)CUP$ParserJava$stack.peek()), RESULT);
+		 System.out.println("-> [Recuperacion] Se ignoro error en importacion hasta el ';'"); 
+              CUP$ParserJava$result = parser.getSymbolFactory().newSymbol("importacion",3, ((java_cup.runtime.Symbol)CUP$ParserJava$stack.elementAt(CUP$ParserJava$top-2)), ((java_cup.runtime.Symbol)CUP$ParserJava$stack.peek()), RESULT);
+            }
+          return CUP$ParserJava$result;
+
+          /*. . . . . . . . . . . . . . . . . . . .*/
+          case 12: // ruta ::= IDENTIFIER 
+            {
+              Object RESULT =null;
+
+              CUP$ParserJava$result = parser.getSymbolFactory().newSymbol("ruta",5, ((java_cup.runtime.Symbol)CUP$ParserJava$stack.peek()), ((java_cup.runtime.Symbol)CUP$ParserJava$stack.peek()), RESULT);
+            }
+          return CUP$ParserJava$result;
+
+          /*. . . . . . . . . . . . . . . . . . . .*/
+          case 13: // ruta ::= ruta DOT IDENTIFIER 
+            {
+              Object RESULT =null;
+
+              CUP$ParserJava$result = parser.getSymbolFactory().newSymbol("ruta",5, ((java_cup.runtime.Symbol)CUP$ParserJava$stack.elementAt(CUP$ParserJava$top-2)), ((java_cup.runtime.Symbol)CUP$ParserJava$stack.peek()), RESULT);
+            }
+          return CUP$ParserJava$result;
+
+          /*. . . . . . . . . . . . . . . . . . . .*/
+          case 14: // clase_principal ::= CLASS IDENTIFIER LBRACE RBRACE 
+            {
+              Object RESULT =null;
+		 System.out.println("Clase principal reconocida correctamente. Estructura de llaves valida."); 
+              CUP$ParserJava$result = parser.getSymbolFactory().newSymbol("clase_principal",4, ((java_cup.runtime.Symbol)CUP$ParserJava$stack.elementAt(CUP$ParserJava$top-3)), ((java_cup.runtime.Symbol)CUP$ParserJava$stack.peek()), RESULT);
+            }
+          return CUP$ParserJava$result;
+
+          /*. . . . . . . . . . . . . . . . . . . .*/
+          case 15: // clase_principal ::= CLASS error RBRACE 
+            {
+              Object RESULT =null;
+		 System.out.println("-> [Recuperacion] Error en definicion de clase. Se omitio hasta '}'"); 
+              CUP$ParserJava$result = parser.getSymbolFactory().newSymbol("clase_principal",4, ((java_cup.runtime.Symbol)CUP$ParserJava$stack.elementAt(CUP$ParserJava$top-2)), ((java_cup.runtime.Symbol)CUP$ParserJava$stack.peek()), RESULT);
             }
           return CUP$ParserJava$result;
 

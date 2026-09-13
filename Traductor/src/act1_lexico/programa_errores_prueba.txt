@@ -1,0 +1,10 @@
+package com.ejemplo..error; 
+
+import java.util.Scanner;
+
+import java.util error_aqui;
+
+import kotlin.math;
+
+class {
+}

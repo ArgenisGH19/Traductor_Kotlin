@@ -591,6 +591,7 @@ public class LexerJava implements java_cup.runtime.Scanner {
   private boolean zzEOFDone;
 
   /* user code: */
+  // Este método es la clave: envía la línea y columna exactas al analizador sintactico (CUP)
   private Symbol token(int type) {
     return new Symbol(type, yyline + 1, yycolumn + 1, yytext());
   }
@@ -1031,7 +1032,7 @@ public class LexerJava implements java_cup.runtime.Scanner {
       else {
         switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
           case 1:
-            { return reportError("CARACTER_NO_RECONOCIDO", "Carácter no pertenece al lenguaje");
+            { return reportError("CARACTER_NO_RECONOCIDO", "Caracter no pertenece al lenguaje");
             }
           // fall through
           case 111: break;
@@ -1051,7 +1052,7 @@ public class LexerJava implements java_cup.runtime.Scanner {
           // fall through
           case 114: break;
           case 5:
-            { return reportError("CARACTER_MAL_FORMADO", "Literal de carácter inválido o sin cerrar");
+            { return reportError("CARACTER_MAL_FORMADO", "Literal de caracter invalido o sin cerrar");
             }
           // fall through
           case 115: break;
@@ -1157,7 +1158,7 @@ public class LexerJava implements java_cup.runtime.Scanner {
           case 135: break;
           case 26:
             { String lexemaLimpio = yytext().trim();
-    ManejoErrores.agregar(new ErrorLexico("CADENA_MAL_FORMADA", lexemaLimpio, yyline + 1, yycolumn + 1, "Cadena de texto sin cerrar comillas en la misma línea"));
+    ManejoErrores.agregar(new ErrorLexico("CADENA_MAL_FORMADA", lexemaLimpio, yyline + 1, yycolumn + 1, "Cadena de texto sin cerrar comillas en la misma linea"));
     return token(sym.ERROR, lexemaLimpio);
             }
           // fall through
@@ -1183,12 +1184,12 @@ public class LexerJava implements java_cup.runtime.Scanner {
           // fall through
           case 140: break;
           case 31:
-            { return reportError("NUMERO_INVALIDO", "Literal numérico octal o cero inicial no permitido");
+            { return reportError("NUMERO_INVALIDO", "Literal numerico octal o cero inicial no permitido");
             }
           // fall through
           case 141: break;
           case 32:
-            { return reportError("IDENTIFICADOR_INVALIDO", "El identificador no puede iniciar con números");
+            { return reportError("IDENTIFICADOR_INVALIDO", "El identificador no puede iniciar con numeros");
             }
           // fall through
           case 142: break;
@@ -1363,7 +1364,7 @@ public class LexerJava implements java_cup.runtime.Scanner {
           // fall through
           case 176: break;
           case 67:
-            { return reportError("NUMERO_INVALIDO", "Formato numérico inválido con múltiples puntos");
+            { return reportError("NUMERO_INVALIDO", "Formato numerico invalido con multiples puntos");
             }
           // fall through
           case 177: break;
