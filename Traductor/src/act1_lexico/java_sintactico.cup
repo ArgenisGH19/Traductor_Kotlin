@@ -1,0 +1,81 @@
+package act1_lexico;
+
+import java_cup.runtime.*;
+
+// ---------------------------------------------------------
+// 1. SOBRESCRIBIR METODOS DE ERROR (Sin acentos y sin texto en ingles)
+// ---------------------------------------------------------
+parser code {:
+    @Override
+    public void syntax_error(Symbol s) {
+        if (s.left >= 0) {
+            System.err.println("Error sintactico en linea " + s.left + 
+                               ", columna " + s.right + ": se encontro '" + s.value + "'");
+        }
+    }
+
+    @Override
+    public void unrecovered_syntax_error(Symbol s) {
+        if (s.left >= 0) {
+            System.err.println("Error fatal en linea " + s.left + 
+                               ", columna " + s.right + ": se encontro '" + s.value + "'");
+        }
+        System.err.println("El analisis no puede continuar. Abortando...");
+        System.exit(1);
+    }
+:};
+
+// ---------------------------------------------------------
+// 2. DEFINICION DE TERMINALES
+// ---------------------------------------------------------
+terminal String PACKAGE, IMPORT, CLASS, INTERFACE, OBJECT, FUN, VAL, VAR, TYPEALIAS, TYPEOF;
+terminal String IF, ELSE, WHEN, WHILE, FOR, DO, RETURN, BREAK, CONTINUE;
+terminal String TRY, CATCH, FINALLY, THROW;
+terminal String PUBLIC, PRIVATE, PROTECTED, INTERNAL, ABSTRACT, FINAL, OPEN, OVERRIDE, SEALED, DATA, ENUM, INNER, VALUE, ANNOTATION;
+terminal String INFIX, OPERATOR, INLINE, NOINLINE, CROSSINLINE, TAILREC, EXTERNAL, LATEINIT, VARARG, SUSPEND, CONST;
+terminal String IS, NOT_IS, AS, AS_SAFE, IN, NOT_IN;
+terminal String THIS, SUPER, NULL, TRUE, FALSE;
+terminal String CONSTRUCTOR, INIT, COMPANION, EXPECT, ACTUAL, WHERE, OUT;
+terminal String PLUS, MINUS, MULT, DIV, MOD;
+terminal String EQEQEQ, NEQEQEQ, EQEQ, NEQ, LE, GE, LT, GT, EQ;
+terminal String AND, OR, NOT;
+terminal String ELVIS, SAFE_CALL, DOUBLE_COLON, RANGE, LPAREN, RPAREN, LBRACE, RBRACE, LBRACK, RBRACK, COMMA, SEMICOLON, DOT, COLON;
+terminal String INT_LITERAL, FLOAT_LITERAL, STRING_LITERAL, IDENTIFIER, CHAR_LITERAL, ERROR;
+
+// ---------------------------------------------------------
+// 3. DEFINICION DE NO TERMINALES
+// ---------------------------------------------------------
+non terminal programa, estructura_paquete, lista_importaciones, importacion, clase_principal, ruta;
+
+start with programa;
+
+// ---------------------------------------------------------
+// 4. REGLAS GRAMATICALES (Sin acentos)
+// ---------------------------------------------------------
+
+programa ::= estructura_paquete lista_importaciones clase_principal {: System.out.println("Analisis sintactico finalizado correctamente\n"); :}
+           | lista_importaciones clase_principal {: System.out.println("Analisis sintactico finalizado correctamente (Sin paquete)\n"); :}
+           | estructura_paquete clase_principal {: System.out.println("Analisis sintactico finalizado correctamente (Sin imports)\n"); :}
+           | clase_principal {: System.out.println("Analisis sintactico finalizado correctamente (Solo clase)\n"); :}
+           | error {: parser.unrecovered_syntax_error(cur_token); :}
+           ;
+
+estructura_paquete ::= PACKAGE ruta SEMICOLON {: System.out.println("Paquete reconocido correctamente"); :}
+                     | PACKAGE error SEMICOLON {: System.out.println("-> [Recuperacion] Se ignoro error en paquete hasta el ';'"); :}
+                     ;
+
+lista_importaciones ::= lista_importaciones importacion
+                      | importacion
+                      ;
+
+importacion ::= IMPORT ruta SEMICOLON {: System.out.println("Importacion reconocida correctamente"); :}
+              | IMPORT error SEMICOLON {: System.out.println("-> [Recuperacion] Se ignoro error en importacion hasta el ';'"); :}
+              ;
+
+ruta ::= IDENTIFIER
+       | ruta DOT IDENTIFIER
+       ;
+
+clase_principal ::= CLASS IDENTIFIER LBRACE RBRACE {: System.out.println("Clase principal reconocida correctamente. Estructura de llaves valida."); :}
+                  | CLASS error RBRACE {: System.out.println("-> [Recuperacion] Error en definicion de clase. Se omitio hasta '}'"); :}
+                  ;

@@ -1,0 +1,6 @@
+class MiClasePrincipal {
+}
+
+package com.ejemplo.proyecto;
+
+import java.util.Scanner;

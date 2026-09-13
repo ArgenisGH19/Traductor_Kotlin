@@ -1,12 +1,21 @@
-/*
- INTEGRANTES: Argenis Adán Gutiérrez Hurtado, Gerardo Josue Rubio Calderon, Pablo Becerra Bedoy
-
-*/
 package act1_lexico;
 
 import java_cup.runtime.*;
 
-/* TERMINALES DE KOTLIN */
+parser code {:
+    @Override
+    public void syntax_error(Symbol s) {
+        String token = (s.value != null) ? s.value.toString() : "desconocido";
+        System.err.println("Error Sintactico [Linea " + s.left + ", Columna " + s.right + 
+                           "]: Token no esperado '" + token + "'");
+    }
+
+    @Override
+    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception {
+        System.err.println("Error Sintactico Irrecuperable [Linea " + s.left + ", Columna " + s.right + "]");
+    }
+:};
+
 terminal VAL, VAR, FUN, CLASS, INTERFACE, OBJECT, TYPEALIAS, TYPEOF,
          IF, ELSE, WHEN, WHILE, FOR, DO, RETURN, BREAK, CONTINUE,
          PACKAGE, IMPORT, TRY, CATCH, FINALLY, THROW,
@@ -24,13 +33,86 @@ terminal VAL, VAR, FUN, CLASS, INTERFACE, OBJECT, TYPEALIAS, TYPEOF,
          LPAREN, RPAREN, LBRACE, RBRACE, LBRACK, RBRACK,
          COMMA, SEMICOLON, DOT, COLON;
 
-/* TERMINALES - VALORES Y ERRORES */
+terminal INT, FLOAT, DOUBLE, CHAR, BOOLEAN, STRING;
+
 terminal String IDENTIFIER, INT_LITERAL, LONG_LITERAL, FLOAT_LITERAL, DOUBLE_LITERAL, CHAR_LITERAL, STRING_LITERAL, ERROR;
 
-/* NO TERMINALES */
-non terminal inicio;
+non terminal archivo, paquete_opt, importacion_list, paquete, importacion, ubicacion, clase_principal;
+non terminal cuerpo_clase, lista_miembros, miembro, modificador_opt, declaracion_comun, constante;
+non terminal lista_identificadores, tipo, valor, identificador;
 
-/* REGLAS GRAMATICALES */
-start with inicio;
+start with archivo;
 
-inicio ::= ;
+archivo ::= paquete_opt importacion_list clase_principal;
+
+paquete_opt ::= paquete
+              | {: /* vacio */ :}
+              ;
+
+importacion_list ::= importacion_list importacion
+                 | {: /* vacio */ :}
+                 ;
+
+paquete ::= PACKAGE:p ubicacion SEMICOLON
+    {: System.out.println("Regla reconocida: Declaracion de paquete en Linea " + pleft); :};
+
+importacion ::= IMPORT:i ubicacion SEMICOLON
+    {: System.out.println("Regla reconocida: Declaracion de importacion en Linea " + ileft); :};
+
+ubicacion ::= identificador DOT ubicacion 
+          | identificador
+          ;
+
+clase_principal ::= CLASS:c identificador LBRACE cuerpo_clase RBRACE
+    {: System.out.println("Regla reconocida: Clase procesada correctamente (Linea " + cleft + ")"); :};
+
+cuerpo_clase ::= lista_miembros
+    | {: /* vacio */ :}
+    | error
+    {: System.out.println("Error recuperado dentro del cuerpo de la clase."); :}
+    ;
+
+lista_miembros ::= lista_miembros miembro 
+               | miembro
+               ;
+
+miembro ::= declaracion_comun
+    | constante
+    | modificador_opt declaracion_comun
+    | modificador_opt constante
+    | error SEMICOLON
+    {: System.out.println("Error recuperado: Declaracion invalida ignorada hasta ';'"); :}
+    ;
+
+modificador_opt ::= PUBLIC | PRIVATE | PROTECTED | INTERNAL;
+
+declaracion_comun ::= tipo lista_identificadores SEMICOLON
+    {: System.out.println("Regla reconocida: Declaracion sin inicializacion"); :}
+    | tipo lista_identificadores EQ valor SEMICOLON
+    {: System.out.println("Regla reconocida: Declaracion con inicializacion"); :}
+    | VAR tipo lista_identificadores SEMICOLON
+    {: System.out.println("Regla reconocida: Declaracion con VAR sin inicializacion"); :}
+    | VAR tipo lista_identificadores EQ valor SEMICOLON
+    {: System.out.println("Regla reconocida: Declaracion con VAR con inicializacion"); :}
+    | VAL tipo lista_identificadores EQ valor SEMICOLON
+    {: System.out.println("Regla reconocida: Declaracion con VAL con inicializacion"); :}
+    ;
+
+constante ::= FINAL:f tipo identificador EQ valor SEMICOLON
+    {: System.out.println("Regla reconocida: Declaracion de constante en Linea " + fleft); :}
+    | FINAL:f tipo identificador SEMICOLON
+    {: System.err.println("Error Sintactico en Linea " + fleft + ": Constante debe inicializarse obligatoriamente."); :}
+    | FINAL:f tipo error SEMICOLON
+    ;
+
+lista_identificadores ::= identificador COMMA lista_identificadores
+    | identificador
+    | identificador:i1 error identificador:i2
+    {: System.err.println("Error Sintactico en Linea " + i1left + ": Falta ',' entre identificadores."); :}
+    ;
+
+tipo ::= INT | FLOAT | DOUBLE | CHAR | BOOLEAN | STRING | identificador;
+
+valor ::= INT_LITERAL | FLOAT_LITERAL | DOUBLE_LITERAL | CHAR_LITERAL | STRING_LITERAL | TRUE | FALSE;
+
+identificador ::= IDENTIFIER:id {: RESULT = id; :};

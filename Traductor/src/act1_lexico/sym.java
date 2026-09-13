@@ -9,14 +9,14 @@ package act1_lexico;
 public class sym {
   /* terminals */
   public static final int AS = 52;
-  public static final int IDENTIFIER = 113;
+  public static final int IDENTIFIER = 119;
   public static final int INTERNAL = 28;
   public static final int GT = 92;
   public static final int TYPEOF = 9;
   public static final int RECEIVER = 69;
   public static final int GETTER = 66;
   public static final int CONST = 49;
-  public static final int INT_LITERAL = 114;
+  public static final int INT_LITERAL = 120;
   public static final int PARAM = 70;
   public static final int DOUBLE_COLON = 102;
   public static final int GE = 93;
@@ -34,7 +34,7 @@ public class sym {
   public static final int NOT_IS = 51;
   public static final int COMMA = 109;
   public static final int CATCH = 22;
-  public static final int DOUBLE_LITERAL = 117;
+  public static final int DOUBLE_LITERAL = 123;
   public static final int RBRACE = 106;
   public static final int NEQEQEQ = 95;
   public static final int THROW = 24;
@@ -44,6 +44,7 @@ public class sym {
   public static final int EQEQEQ = 94;
   public static final int LBRACK = 107;
   public static final int LT = 90;
+  public static final int DOUBLE = 115;
   public static final int LBRACE = 105;
   public static final int LPAREN = 103;
   public static final int OUT = 81;
@@ -54,10 +55,11 @@ public class sym {
   public static final int LE = 91;
   public static final int COMPANION = 75;
   public static final int OBJECT = 7;
-  public static final int ERROR = 120;
+  public static final int ERROR = 126;
   public static final int VAR = 3;
   public static final int OVERRIDE = 32;
   public static final int FINAL = 30;
+  public static final int FLOAT = 114;
   public static final int INLINE = 41;
   public static final int PACKAGE = 19;
   public static final int VAL = 2;
@@ -70,10 +72,12 @@ public class sym {
   public static final int SUPER = 57;
   public static final int ABSTRACT = 29;
   public static final int TRUE = 59;
-  public static final int LONG_LITERAL = 115;
+  public static final int LONG_LITERAL = 121;
   public static final int PLUS = 82;
   public static final int WHILE = 13;
+  public static final int CHAR = 116;
   public static final int INTERFACE = 6;
+  public static final int BOOLEAN = 117;
   public static final int DO = 15;
   public static final int FOR = 14;
   public static final int DIV = 85;
@@ -87,7 +91,8 @@ public class sym {
   public static final int BREAK = 17;
   public static final int FUN = 4;
   public static final int DOT = 111;
-  public static final int STRING_LITERAL = 119;
+  public static final int INT = 113;
+  public static final int STRING_LITERAL = 125;
   public static final int SAFE_CALL = 99;
   public static final int EQEQ = 88;
   public static final int NULL = 58;
@@ -101,7 +106,7 @@ public class sym {
   public static final int MINUS = 83;
   public static final int IS = 50;
   public static final int SUSPEND = 48;
-  public static final int FLOAT_LITERAL = 116;
+  public static final int FLOAT_LITERAL = 122;
   public static final int NOINLINE = 42;
   public static final int IN = 54;
   public static final int OR = 97;
@@ -120,8 +125,9 @@ public class sym {
   public static final int SETTER = 67;
   public static final int FIELD = 64;
   public static final int EXPECT = 76;
-  public static final int CHAR_LITERAL = 118;
+  public static final int CHAR_LITERAL = 124;
   public static final int TYPEALIAS = 8;
+  public static final int STRING = 118;
   public static final int RANGE = 101;
   public static final int NEQ = 89;
   public static final int AND = 96;
@@ -243,6 +249,12 @@ public class sym {
   "SEMICOLON",
   "DOT",
   "COLON",
+  "INT",
+  "FLOAT",
+  "DOUBLE",
+  "CHAR",
+  "BOOLEAN",
+  "STRING",
   "IDENTIFIER",
   "INT_LITERAL",
   "LONG_LITERAL",

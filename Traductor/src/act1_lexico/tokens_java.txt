@@ -89,15 +89,14 @@ Char
 String
 Array
 // ==========================================
-// 1. IDENTIFICADORES
+// 1. IDENTIFICADORES VÁLIDOS
 // ==========================================
 miVariable
 _contador
 acumulador2026
-calcularSuma Total
 
 // ==========================================
-// 2. LITERALES NUMÉRICOS
+// 2. LITERALES NUMÉRICOS VÁLIDOS
 // ==========================================
 42
 1050
@@ -105,33 +104,35 @@ calcularSuma Total
 100.50
 
 // ==========================================
-// 3. OPERADORES Y SÍMBOLOS
-// Operadores Aritméticos
+// 3. OPERADORES Y SÍMBOLOS VÁLIDOS
+// ==========================================
 + - * / %
-
-// Operadores Relacionales
 < > <= >= == !=
-
-// Operadores Lógicos
 && || !
-
-// Operadores Especiales de Kotlin
 ?: ?. !! -> ..
-
-// Símbolos y Agrupación
 ( ) { } [ ] , ; : .
 
 // ==========================================
-// 4. CADENAS DE TEXTO (STRINGS CON ESCAPES)
+// 4. CADENAS DE TEXTO VÁLIDAS
 // ==========================================
 "Hola Mundo"
 "Cadena con comilla interna: \"texto\""
 "Salto de línea\ny tabulación\t"
 
 // ==========================================
-// 5. COMENTARIOS (DEBEN SER IGNORADOS POR EL LEXER)
+// 5. COMENTARIOS VÁLIDOS (IGNORADOS)
 // ==========================================
 // Este es un comentario de una sola línea
 /* Este es un comentario
    de múltiples líneas 
    o de bloque */
+
+// ==========================================
+// 6. CASOS DE PRUEBA: ERRORES LEXICOS (NUEVOS)
+// ==========================================
+val 99variable = 10
+val precio = 45.30.5
+val mensaje = "Hola sin cerrar
+val invalido = 01050
+val simbolo = @
+val otroError = #

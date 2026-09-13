@@ -1,0 +1,8 @@
+package act1_lexico;
+
+class Persona {
+    int edad;
+    String nombre, apellido;
+    float salario = 5000;
+    final double PI = 3.1416;
+}

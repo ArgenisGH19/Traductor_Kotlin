@@ -1,0 +1,7 @@
+package act1_lexico;
+
+class Persona {
+    int edad nombre;    // Error: falta coma entre variables
+    final int MIN;      // Error: constante sin inicializar
+    float 123monto;     // Error: identificador inválido
+}
