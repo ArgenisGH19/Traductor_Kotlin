@@ -41,13 +41,25 @@ terminal String EQEQEQ, NEQEQEQ, EQEQ, NEQ, LE, GE, LT, GT, EQ;
 terminal String AND, OR, NOT;
 terminal String ELVIS, SAFE_CALL, DOUBLE_COLON, RANGE, LPAREN, RPAREN, LBRACE, RBRACE, LBRACK, RBRACK, COMMA, SEMICOLON, DOT, COLON;
 terminal String INT_LITERAL, FLOAT_LITERAL, STRING_LITERAL, IDENTIFIER, CHAR_LITERAL, ERROR;
+terminal String DOUBLE_LITERAL, INT, FLOAT, DOUBLE, CHAR, BOOLEAN, STRING;
+terminal String LEER, ESCRIBIR;
 
 // ---------------------------------------------------------
-// 3. DEFINICION DE NO TERMINALES
+// 3. DEFINICION DE NO TERMINALES Y PRECEDENCIA
 // ---------------------------------------------------------
 non terminal programa, estructura_paquete, lista_importaciones, importacion, clase_principal, ruta;
+non terminal metodo, cuerpo_metodo, lista_sentencias, sentencia;
+non terminal lectura, escritura, asignacion;
+non terminal lista_identificadores, lista_elementos, elemento, expresion;
 
-start with programa;
+// Precedencia para evitar conflictos en expresiones matemáticas y lógicas
+precedence left OR;
+precedence left AND;
+precedence right NOT;
+precedence left PLUS, MINUS;
+precedence left MULT, DIV, MOD;
+
+start with programa; 
 
 // ---------------------------------------------------------
 // 4. REGLAS GRAMATICALES (Sin acentos)
@@ -76,6 +88,65 @@ ruta ::= IDENTIFIER
        | ruta DOT IDENTIFIER
        ;
 
-clase_principal ::= CLASS IDENTIFIER LBRACE RBRACE {: System.out.println("Clase principal reconocida correctamente. Estructura de llaves valida."); :}
+// La clase principal ahora contiene un método obligatorio
+clase_principal ::= CLASS IDENTIFIER LBRACE metodo RBRACE {: System.out.println("Clase principal reconocida correctamente. Estructura de llaves valida."); :}
                   | CLASS error RBRACE {: System.out.println("-> [Recuperacion] Error en definicion de clase. Se omitio hasta '}'"); :}
                   ;
+
+
+
+metodo ::= FUN IDENTIFIER LPAREN RPAREN LBRACE cuerpo_metodo RBRACE {: System.out.println("Regla reconocida: declaracion de metodo"); :} ;
+
+cuerpo_metodo ::= lista_sentencias {: System.out.println("Regla reconocida: cuerpo de metodo analizado"); :} ;
+
+lista_sentencias ::= lista_sentencias sentencia 
+                   | sentencia ;
+
+sentencia ::= lectura
+            | escritura
+            | asignacion
+            | error SEMICOLON {: System.out.println("-> [Recuperacion] Se omitio la estructura con error hasta el ';'"); :}
+            ;
+
+lectura ::= LEER LPAREN lista_identificadores RPAREN SEMICOLON {: System.out.println("Regla reconocida: sentencia de lectura"); :}
+          | LEER LPAREN error RPAREN SEMICOLON {: System.out.println("-> [Recuperacion] Error: Falta de coma o estructura invalida en lectura"); :}
+          ;
+
+lista_identificadores ::= IDENTIFIER
+                        | lista_identificadores COMMA IDENTIFIER
+                        | lista_identificadores COMMA error {: System.out.println("-> [Recuperacion] Error: Coma duplicada en lista de lectura"); :}
+                        ;
+
+escritura ::= ESCRIBIR LPAREN lista_elementos RPAREN SEMICOLON {: System.out.println("Regla reconocida: sentencia de escritura"); :}
+            | ESCRIBIR LPAREN lista_elementos error SEMICOLON {: System.out.println("-> [Recuperacion] Error: Falta de ')' en la escritura"); :}
+            | ESCRIBIR error SEMICOLON {: System.out.println("-> [Recuperacion] Error: Elemento faltante o coma sobrante en escritura"); :}
+            ;
+
+lista_elementos ::= elemento
+                  | lista_elementos COMMA elemento
+                  ;
+
+elemento ::= STRING_LITERAL
+           | expresion 
+           ;
+
+asignacion ::= IDENTIFIER EQ expresion SEMICOLON {: System.out.println("Regla reconocida: asignacion con expresion"); :}
+             | error EQ expresion SEMICOLON {: System.out.println("-> [Recuperacion] Error: Identificador faltante en la asignacion"); :}
+             | IDENTIFIER EQ error SEMICOLON {: System.out.println("-> [Recuperacion] Error: Expresion aritmetica o logica incompleta"); :}
+             ;
+
+expresion ::= expresion PLUS expresion
+            | expresion MINUS expresion
+            | expresion MULT expresion
+            | expresion DIV expresion
+            | expresion MOD expresion
+            | expresion AND expresion
+            | expresion OR expresion
+            | NOT expresion
+            | LPAREN expresion RPAREN
+            | IDENTIFIER
+            | INT_LITERAL
+            | FLOAT_LITERAL
+            | TRUE
+            | FALSE
+            ;

@@ -46,7 +46,7 @@ Comment            = {TraditionalComment} | {EndOfLineComment}
     {Whitespace}       { /* Ignorar */ }
     {Comment}          { /* Ignorar */ }
 
-    /* Palabras Reservadas */
+    /* Palabras Reservadas Nativas  */
     "package"          { return symbol(sym.PACKAGE, yytext()); }
     "import"           { return symbol(sym.IMPORT, yytext()); }
     "class"            { return symbol(sym.CLASS, yytext()); }
@@ -63,6 +63,8 @@ Comment            = {TraditionalComment} | {EndOfLineComment}
     "true"             { return symbol(sym.TRUE, yytext()); }
     "false"            { return symbol(sym.FALSE, yytext()); }
     "null"             { return symbol(sym.NULL, yytext()); }
+    "leer"             { return symbol(sym.LEER, yytext()); }
+    "escribir"         { return symbol(sym.ESCRIBIR, yytext()); }
 
     /* Tipos de Datos */
     "int"              { return symbol(sym.INT, yytext()); }
@@ -111,7 +113,7 @@ Comment            = {TraditionalComment} | {EndOfLineComment}
     /* Identificadores */
     {Identifier}       { return symbol(sym.IDENTIFIER, yytext()); }
 
-    /* Errores Léxicos (IDs mal formados o caracteres inválidos) */
+    /* Errores Léxicos */
     {Digit}+{Letter}+  { 
                          System.err.println("Error Lexico [Linea " + (yyline+1) + ", Columna " + (yycolumn+1) + "]: Identificador invalido '" + yytext() + "'");
                          return symbol(sym.ERROR, yytext()); 
@@ -123,4 +125,4 @@ Comment            = {TraditionalComment} | {EndOfLineComment}
 [^]                    { 
                          System.err.println("Error Lexico [Linea " + (yyline+1) + ", Columna " + (yycolumn+1) + "]: Caracter no permitido '" + yytext() + "'");
                          return symbol(sym.ERROR, yytext()); 
-                       } 
+                       }

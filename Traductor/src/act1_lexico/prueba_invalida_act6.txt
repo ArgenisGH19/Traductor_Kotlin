@@ -1,0 +1,18 @@
+package com.ejemplo;
+import java.util.Scanner;
+
+class MiClase {
+    fun proceso() {
+        leer(a b);
+        
+        escribir("Inicio"
+        
+        total = a + ;
+        
+        = a + b;
+        
+        leer(a,,b);
+        
+        escribir(,a);
+    }
+}

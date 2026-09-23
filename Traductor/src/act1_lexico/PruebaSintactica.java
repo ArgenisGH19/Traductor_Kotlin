@@ -7,11 +7,11 @@ public class PruebaSintactica {
     public static void main(String[] args) {
         System.out.println("=== INTEGRANTES DEL EQUIPO ===");
         System.out.println("1. Becerra Bedoy, Pablo");
-        System.out.println("2. Gutiérrez Hurtado, Argenis Adán");
-        System.out.println("3. Rubio Calderón, Gerardo Josué");
+        System.out.println("2. Gutierrez Hurtado, Argenis Adan");
+        System.out.println("3. Rubio Calderon, Gerardo Josue");
         System.out.println("=========================================================\n");
 
-        String rutaArchivo = "src/act1_lexico/prueba valida.txt";
+        String rutaArchivo = "src/act1_lexico/prueba_invalida_act6.txt";
         System.out.println("--- INICIANDO ANALISIS SINTACTICO ---");
         System.out.println("Archivo a analizar: " + rutaArchivo + "\n");
 

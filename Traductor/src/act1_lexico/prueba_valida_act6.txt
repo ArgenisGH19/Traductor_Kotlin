@@ -1,0 +1,17 @@
+package com.ejemplo;
+import java.util.Scanner;
+
+class MiClase {
+    fun proceso() {
+        leer(a);
+        leer(b, c);
+        escribir("Inicio del proceso");
+        total = a + b;
+        promedio = (a + b + c) / 3;
+        activo = a && b;
+        estado = !activo;
+        escribir("Resultado:", total);
+        escribir(promedio);
+        escribir(a + b);
+    }
+}
