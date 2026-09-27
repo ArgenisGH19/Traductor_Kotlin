@@ -2,202 +2,205 @@ package act1_lexico;
 
 import java_cup.runtime.*;
 
-// ---------------------------------------------------------
-// 1. SOBRESCRIBIR METODOS DE ERROR (Sin acentos y sin texto en ingles)
-// ---------------------------------------------------------
 parser code {:
     @Override
     public void syntax_error(Symbol s) {
-        if (s.left >= 0) {
-            System.err.println("Error sintactico en linea " + s.left + 
-                               ", columna " + s.right + ": se encontro '" + s.value + "'");
-        }
+        String token = (s.value != null) ? s.value.toString() : "desconocido";
+        System.err.println("Error sintactico en linea " + s.left + 
+                           ", columna " + s.right + ": se encontro '" + token + "'");
     }
 
     @Override
-    public void unrecovered_syntax_error(Symbol s) {
-        if (s.left >= 0) {
-            System.err.println("Error fatal en linea " + s.left + 
-                               ", columna " + s.right + ": se encontro '" + s.value + "'");
-        }
-        System.err.println("El analisis no puede continuar. Abortando...");
-        System.exit(1);
+    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception {
+        System.err.println("Error fatal en linea " + s.left + ", columna " + s.right);
+        System.err.println("El analisis sintactico no puede continuar.");
     }
 :};
 
-// ---------------------------------------------------------
-// 2. DEFINICION DE TERMINALES
-// ---------------------------------------------------------
-terminal String PACKAGE, IMPORT, CLASS, INTERFACE, OBJECT, FUN, VAL, VAR, TYPEALIAS, TYPEOF;
-terminal String IF, ELSE, WHEN, WHILE, FOR, DO, RETURN, BREAK, CONTINUE;
-terminal String TRY, CATCH, FINALLY, THROW;
-terminal String PUBLIC, PRIVATE, PROTECTED, INTERNAL, ABSTRACT, FINAL, OPEN, OVERRIDE, SEALED, DATA, ENUM, INNER, VALUE, ANNOTATION;
-terminal String INFIX, OPERATOR, INLINE, NOINLINE, CROSSINLINE, TAILREC, EXTERNAL, LATEINIT, VARARG, SUSPEND, CONST;
-terminal String IS, NOT_IS, AS, AS_SAFE, IN, NOT_IN;
-terminal String THIS, SUPER, NULL, TRUE, FALSE;
-terminal String CONSTRUCTOR, INIT, COMPANION, EXPECT, ACTUAL, WHERE, OUT;
-terminal String PLUS, MINUS, MULT, DIV, MOD;
-terminal String EQEQEQ, NEQEQEQ, EQEQ, NEQ, LE, GE, LT, GT, EQ;
-terminal String AND, OR, NOT;
-terminal String ELVIS, SAFE_CALL, DOUBLE_COLON, RANGE, LPAREN, RPAREN, LBRACE, RBRACE, LBRACK, RBRACK, COMMA, SEMICOLON, DOT, COLON;
-terminal String INT_LITERAL, FLOAT_LITERAL, STRING_LITERAL, IDENTIFIER, CHAR_LITERAL, ERROR;
-terminal String DOUBLE_LITERAL, INT, FLOAT, DOUBLE, CHAR, BOOLEAN, STRING;
+// --- DECLARACIÓN DE TERMINALES ---
+terminal String PACKAGE, IMPORT, CLASS, FUN, VAL, VAR, IF, ELSE, WHEN, WHILE, DO, FOR, IN;
+terminal String PUBLIC, PRIVATE, PROTECTED, INTERNAL, FINAL, RETURN, NULL, TRUE, FALSE;
+terminal String PLUS, MINUS, MULT, DIV, MOD, EQ, EQEQ, NEQ, LT, LE, GT, GE, AND, OR, NOT;
+terminal String ARROW, RANGE, LPAREN, RPAREN, LBRACE, RBRACE, LBRACK, RBRACK, COMMA, SEMICOLON, DOT, COLON;
+terminal String INT, FLOAT, DOUBLE, CHAR, BOOLEAN, STRING;
 terminal String LEER, ESCRIBIR;
+terminal String IDENTIFIER, INT_LITERAL, FLOAT_LITERAL, DOUBLE_LITERAL, CHAR_LITERAL, STRING_LITERAL, ERROR;
 
-// ---------------------------------------------------------
-// 3. DEFINICION DE NO TERMINALES Y PRECEDENCIA
-// ---------------------------------------------------------
+// --- DECLARACIÓN DE NO TERMINALES ---
 non terminal programa, estructura_paquete, lista_importaciones, importacion, clase_principal, ruta;
-non terminal lista_metodos, metodo, cuerpo_metodo, lista_sentencias, sentencia;
-non terminal lectura, escritura, asignacion;
-non terminal lista_identificadores, lista_elementos, elemento, expresion;
-// Nuevas cositas para reconocer metodos (esto es actualizacion de la tarea 8)
-non terminal tipo_dato;
-non terminal parametros_optativos, lista_parametros, parametro, tipo_retorno_optativo;
-non terminal llamada_metodo, lista_argumentos;
-non terminal retorno;
+non terminal lista_metodos, metodo, cuerpo_metodo, lista_sentencias, sentencia, bloque;
+non terminal seleccion, seleccion_multiple, lista_casos, caso, defecto;
+non terminal ciclo_mientras, ciclo_hacer_mientras, ciclo_para;
+non terminal condicion, expresion, lectura, escritura, asignacion, retorno;
+non terminal tipo_dato, parametros_optativos, lista_parametros, parametro, tipo_retorno_optativo;
+non terminal lista_identificadores, lista_elementos, elemento, rango_para;
 
-// Precedencia para evitar conflictos en expresiones matemáticas y lógicas
+// --- PRECEDENCIA DE OPERADORES Y RESOLUCIÓN DE SHIFT/REDUCE ---
+precedence nonassoc IF;
+precedence nonassoc ELSE;
 precedence left OR;
 precedence left AND;
 precedence right NOT;
+precedence nonassoc EQEQ, NEQ, LT, LE, GT, GE;
 precedence left PLUS, MINUS;
 precedence left MULT, DIV, MOD;
 
-start with programa; 
+start with programa;
 
-// ---------------------------------------------------------
-// 4. REGLAS GRAMATICALES
-// ---------------------------------------------------------
+// --- REGLAS GRAMATICALES ---
 
-programa ::= estructura_paquete lista_importaciones clase_principal {: System.out.println("Analisis sintactico finalizado correctamente\n"); :}
-           | lista_importaciones clase_principal {: System.out.println("Analisis sintactico finalizado correctamente (Sin paquete)\n"); :}
-           | estructura_paquete clase_principal {: System.out.println("Analisis sintactico finalizado correctamente (Sin imports)\n"); :}
-           | clase_principal {: System.out.println("Analisis sintactico finalizado correctamente (Solo clase)\n"); :}
+programa ::= estructura_paquete lista_importaciones clase_principal
+           {: System.out.println("Analisis sintactico finalizado correctamente"); :}
+           | lista_importaciones clase_principal
+           {: System.out.println("Analisis sintactico finalizado correctamente"); :}
+           | estructura_paquete clase_principal
+           {: System.out.println("Analisis sintactico finalizado correctamente"); :}
+           | clase_principal
+           {: System.out.println("Analisis sintactico finalizado correctamente"); :}
            | error {: parser.unrecovered_syntax_error(cur_token); :}
            ;
 
-estructura_paquete ::= PACKAGE ruta SEMICOLON {: System.out.println("Paquete reconocido correctamente"); :}
-                     | PACKAGE error SEMICOLON {: System.out.println("-> [Recuperacion] Se ignoro error en paquete hasta el ';'"); :}
+estructura_paquete ::= PACKAGE ruta SEMICOLON {: System.out.println("Regla reconocida: estructura_paquete"); :}
+                     | PACKAGE error SEMICOLON {: System.out.println("-> [Recuperacion] Error en declaracion de paquete"); :}
                      ;
 
 lista_importaciones ::= lista_importaciones importacion
                       | importacion
                       ;
 
-importacion ::= IMPORT ruta SEMICOLON {: System.out.println("Importacion reconocida correctamente"); :}
-              | IMPORT error SEMICOLON {: System.out.println("-> [Recuperacion] Se ignoro error en importacion hasta el ';'"); :}
+importacion ::= IMPORT ruta SEMICOLON {: System.out.println("Regla reconocida: importacion"); :}
+              | IMPORT error SEMICOLON {: System.out.println("-> [Recuperacion] Error en importacion"); :}
               ;
 
 ruta ::= IDENTIFIER
        | ruta DOT IDENTIFIER
        ;
 
-// La clase principal ahora acepta una lista de métodos (para que pueda haber más de uno)
-clase_principal ::= CLASS IDENTIFIER LBRACE lista_metodos RBRACE {: System.out.println("Clase principal reconocida correctamente. Estructura de llaves valida."); :}
-                  | CLASS error RBRACE {: System.out.println("-> [Recuperacion] Error en definicion de clase. Se omitio hasta '}'"); :}
+clase_principal ::= CLASS IDENTIFIER LBRACE lista_metodos RBRACE 
+                  {: System.out.println("Regla reconocida: clase_principal"); :}
+                  | CLASS error RBRACE 
+                  {: System.out.println("-> [Recuperacion] Error en definicion de clase"); :}
                   ;
 
 lista_metodos ::= lista_metodos metodo
                 | metodo
                 ;
 
-// --- TIPOS DE DATO ---
-tipo_dato ::= INT | FLOAT | DOUBLE | BOOLEAN | STRING | CHAR ;
-
-// --- DEFINICIÓN DE MÉTODOS (Sintaxis Kotlin) ---
-metodo ::= FUN IDENTIFIER LPAREN parametros_optativos RPAREN tipo_retorno_optativo LBRACE cuerpo_metodo RBRACE 
+// --- MÉTODOS ---
+metodo ::= FUN IDENTIFIER LPAREN parametros_optativos RPAREN tipo_retorno_optativo LBRACE cuerpo_metodo RBRACE
          {: System.out.println("Regla reconocida: definicion_metodo"); :}
-         | FUN IDENTIFIER error LBRACE cuerpo_metodo RBRACE 
-         {: System.out.println("-> [Recuperacion] Error sintactico: se esperaba '(' o estructura de parametros invalida en el metodo"); :}
+         | FUN IDENTIFIER LPAREN error RPAREN LBRACE cuerpo_metodo RBRACE
+         {: System.out.println("-> [Recuperacion] Error sintactico en los parametros del metodo"); :}
          ;
 
-tipo_retorno_optativo ::= COLON tipo_dato {: System.out.println("Regla reconocida: metodo_con_retorno"); :}
-                        | /* vacio */ {: System.out.println("Regla reconocida: metodo_sin_retorno"); :}
+tipo_retorno_optativo ::= COLON tipo_dato
+                        | /* vacio */
                         ;
 
-parametros_optativos ::= lista_parametros {: System.out.println("Regla reconocida: metodo_con_parametros"); :}
-                       | /* vacio */ {: System.out.println("Regla reconocida: metodo_sin_parametros"); :}
+parametros_optativos ::= lista_parametros
+                       | /* vacio */
                        ;
 
 lista_parametros ::= parametro
                    | lista_parametros COMMA parametro
-                   | lista_parametros COMMA error {: System.out.println("-> [Recuperacion] Error sintactico: se esperaba un parametro despues de ','"); :}
                    ;
 
-parametro ::= IDENTIFIER COLON tipo_dato {: System.out.println("Regla reconocida: parametro valido"); :}
-            | error COLON tipo_dato {: System.out.println("-> [Recuperacion] Error sintactico: se esperaba un identificador para el parametro"); :}
-            | IDENTIFIER COLON error {: System.out.println("-> [Recuperacion] Error sintactico: tipo de dato invalido o faltante"); :}
-            ;
+parametro ::= IDENTIFIER COLON tipo_dato ;
 
-// --- CUERPO Y SENTENCIAS ---
-cuerpo_metodo ::= lista_sentencias {: System.out.println("Regla reconocida: cuerpo de metodo analizado"); :} 
-                | /* vacio, para permitir metodos sin sentencias dentro */ {: System.out.println("Regla reconocida: cuerpo de metodo vacio"); :}
+tipo_dato ::= INT | FLOAT | DOUBLE | CHAR | BOOLEAN | STRING | IDENTIFIER ;
+
+cuerpo_metodo ::= lista_sentencias {: System.out.println("Regla reconocida: cuerpo_metodo"); :}
+                | /* vacio */
                 ;
 
-lista_sentencias ::= lista_sentencias sentencia 
-                   | sentencia ;
+// --- BLOQUES Y SENTENCIAS ---
+bloque ::= LBRACE lista_sentencias RBRACE {: System.out.println("Regla reconocida: bloque"); :}
+         | LBRACE RBRACE {: System.out.println("Regla reconocida: bloque_vacio"); :}
+         | LBRACE error RBRACE {: System.out.println("-> [Recuperacion] Error sintactico dentro del bloque"); :}
+         ;
 
-sentencia ::= lectura
-            | escritura
-            | asignacion
-            | llamada_metodo SEMICOLON {: System.out.println("Regla reconocida: llamada utilizada como sentencia"); :}
-            | retorno
-            | error SEMICOLON {: System.out.println("-> [Recuperacion] Se omitio la estructura con error hasta el ';'"); :}
-            ;
-
-// --- RETORNO ---
-retorno ::= RETURN expresion SEMICOLON {: System.out.println("Regla reconocida: retorno con expresion"); :}
-          | RETURN SEMICOLON {: System.out.println("Regla reconocida: retorno sin expresion"); :}
-          | RETURN error SEMICOLON {: System.out.println("-> [Recuperacion] Error sintactico: se esperaba una expresion despues de 'return'"); :}
-          ;
-
-// --- LLAMADAS A MÉTODOS ---
-llamada_metodo ::= IDENTIFIER LPAREN RPAREN {: System.out.println("Regla reconocida: llamada_sin_argumentos"); :}
-                 | IDENTIFIER LPAREN lista_argumentos RPAREN {: System.out.println("Regla reconocida: llamada_metodo_con_argumentos"); :}
-                 | IDENTIFIER LPAREN error RPAREN {: System.out.println("-> [Recuperacion] Error sintactico en los argumentos de la llamada"); :}
-                 ;
-
-lista_argumentos ::= expresion {: System.out.println("Regla reconocida: argumento procesado"); :}
-                   | lista_argumentos COMMA expresion
-                   | lista_argumentos COMMA error {: System.out.println("-> [Recuperacion] Error sintactico: se esperaba un argumento despues de ','"); :}
-                   | error COMMA expresion {: System.out.println("-> [Recuperacion] Error sintactico: argumento invalido o faltante antes de ','"); :}
+lista_sentencias ::= lista_sentencias sentencia
+                   | sentencia
                    ;
 
-// --- LECTURA, ESCRITURA Y ASIGNACIÓN ---
-lectura ::= LEER LPAREN lista_identificadores RPAREN SEMICOLON {: System.out.println("Regla reconocida: sentencia de lectura"); :}
-          | LEER LPAREN error RPAREN SEMICOLON {: System.out.println("-> [Recuperacion] Error: Falta de coma o estructura invalida en lectura"); :}
-          ;
-
-lista_identificadores ::= IDENTIFIER
-                        | lista_identificadores COMMA IDENTIFIER
-                        | lista_identificadores COMMA error {: System.out.println("-> [Recuperacion] Error: Coma duplicada en lista de lectura"); :}
-                        ;
-
-escritura ::= ESCRIBIR LPAREN lista_elementos RPAREN SEMICOLON {: System.out.println("Regla reconocida: sentencia de escritura"); :}
-            | ESCRIBIR LPAREN lista_elementos error SEMICOLON {: System.out.println("-> [Recuperacion] Error: Falta de ')' en la escritura"); :}
-            | ESCRIBIR error SEMICOLON {: System.out.println("-> [Recuperacion] Error: Elemento faltante o coma sobrante en escritura"); :}
+sentencia ::= seleccion
+            | seleccion_multiple
+            | ciclo_mientras
+            | ciclo_hacer_mientras
+            | ciclo_para
+            | lectura
+            | escritura
+            | asignacion
+            | retorno
+            | error SEMICOLON {: System.out.println("-> [Recuperacion] Se omitio instruccion invalida hasta ';'"); :}
             ;
 
-lista_elementos ::= elemento
-                  | lista_elementos COMMA elemento
-                  ;
+// --- 1. ESTRUCTURAS SELECTIVAS (Sin conflicto Shift/Reduce) ---
+seleccion ::= IF LPAREN condicion RPAREN bloque
+            {: System.out.println("Regla reconocida: seleccion_simple"); :}
+            | IF LPAREN condicion RPAREN bloque ELSE bloque
+            {: System.out.println("Regla reconocida: seleccion_doble"); :}
+            | IF error RPAREN bloque
+            {: System.err.println("Error sintactico: se esperaba '(' despues de 'if'"); :}
+            ;
 
-elemento ::= STRING_LITERAL
-           | expresion 
-           ;
+seleccion_multiple ::= WHEN LPAREN expresion RPAREN LBRACE lista_casos defecto RBRACE
+                     {: System.out.println("Regla reconocida: seleccion_multiple"); :}
+                     | WHEN LPAREN expresion RPAREN LBRACE lista_casos RBRACE
+                     {: System.out.println("Regla reconocida: seleccion_multiple"); :}
+                     | WHEN LPAREN error RPAREN LBRACE lista_casos RBRACE
+                     {: System.err.println("Error sintactico en expresion de seleccion multiple 'when'"); :}
+                     ;
 
-asignacion ::= IDENTIFIER EQ expresion SEMICOLON {: System.out.println("Regla reconocida: asignacion con expresion"); :}
-             | error EQ expresion SEMICOLON {: System.out.println("-> [Recuperacion] Error: Identificador faltante en la asignacion"); :}
-             | IDENTIFIER EQ error SEMICOLON {: System.out.println("-> [Recuperacion] Error: Expresion aritmetica o logica incompleta"); :}
+lista_casos ::= lista_casos caso
+              | caso
+              ;
+
+caso ::= expresion ARROW bloque
+       {: System.out.println("Regla reconocida: caso"); :}
+       | expresion ARROW sentencia
+       {: System.out.println("Regla reconocida: caso"); :}
+       ;
+
+defecto ::= ELSE ARROW bloque {: System.out.println("Regla reconocida: defecto"); :}
+          | ELSE ARROW sentencia {: System.out.println("Regla reconocida: defecto"); :}
+          ;
+
+// --- 2. ESTRUCTURAS ITERATIVAS ---
+ciclo_mientras ::= WHILE LPAREN condicion RPAREN bloque
+                 {: System.out.println("Regla reconocida: ciclo_mientras"); :}
+                 | WHILE LPAREN condicion error bloque
+                 {: System.err.println("Error sintactico: se esperaba ')' en la condicion del ciclo"); :}
+                 ;
+
+ciclo_hacer_mientras ::= DO bloque WHILE LPAREN condicion RPAREN SEMICOLON
+                       {: System.out.println("Regla reconocida: ciclo_hacer_mientras"); :}
+                       | DO bloque WHILE LPAREN error RPAREN SEMICOLON
+                       {: System.err.println("Error sintactico en la condicion de 'do-while'"); :}
+                       ;
+
+ciclo_para ::= FOR LPAREN IDENTIFIER IN rango_para RPAREN bloque
+             {: System.out.println("Regla reconocida: ciclo_para"); :}
+             | FOR LPAREN IDENTIFIER RPAREN bloque
+             {: System.err.println("Error sintactico: se esperaba la seccion de actualizacion/rango del ciclo 'for'"); :}
              ;
 
-// --- EXPRESIONES ---
+rango_para ::= expresion RANGE expresion ;
+
+// --- 3. CONDICIONES Y EXPRESIONES ---
+condicion ::= expresion {: System.out.println("Regla reconocida: condicion"); :} ;
+
 expresion ::= expresion PLUS expresion
             | expresion MINUS expresion
             | expresion MULT expresion
             | expresion DIV expresion
             | expresion MOD expresion
+            | expresion EQEQ expresion
+            | expresion NEQ expresion
+            | expresion LT expresion
+            | expresion LE expresion
+            | expresion GT expresion
+            | expresion GE expresion
             | expresion AND expresion
             | expresion OR expresion
             | NOT expresion
@@ -205,7 +208,41 @@ expresion ::= expresion PLUS expresion
             | IDENTIFIER
             | INT_LITERAL
             | FLOAT_LITERAL
+            | DOUBLE_LITERAL
+            | CHAR_LITERAL
+            | STRING_LITERAL
             | TRUE
             | FALSE
-            | llamada_metodo {: System.out.println("Regla reconocida: llamada utilizada dentro de expresion"); :}
+            | NULL
             ;
+
+// --- OTRAS SENTENCIAS ---
+lectura ::= LEER LPAREN lista_identificadores RPAREN SEMICOLON
+          {: System.out.println("Regla reconocida: lectura"); :}
+          ;
+
+lista_identificadores ::= IDENTIFIER
+                        | lista_identificadores COMMA IDENTIFIER
+                        ;
+
+escritura ::= ESCRIBIR LPAREN lista_elementos RPAREN SEMICOLON
+            {: System.out.println("Regla reconocida: escritura"); :}
+            ;
+
+lista_elementos ::= elemento
+                  | lista_elementos COMMA elemento
+                  ;
+
+elemento ::= expresion ;
+
+asignacion ::= IDENTIFIER EQ expresion SEMICOLON
+             {: System.out.println("Regla reconocida: asignacion"); :}
+             | VAR IDENTIFIER COLON tipo_dato EQ expresion SEMICOLON
+             {: System.out.println("Regla reconocida: declaracion_asignacion"); :}
+             | VAL IDENTIFIER COLON tipo_dato EQ expresion SEMICOLON
+             {: System.out.println("Regla reconocida: declaracion_constante"); :}
+             ;
+
+retorno ::= RETURN expresion SEMICOLON {: System.out.println("Regla reconocida: retorno"); :}
+          | RETURN SEMICOLON {: System.out.println("Regla reconocida: retorno"); :}
+          ;

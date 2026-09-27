@@ -1,0 +1,34 @@
+class Proceso {
+
+    fun ejecucion() {
+        leer(edad, contador);
+
+        if (edad >= 18) {
+            escribir("Mayor de edad");
+        } else {
+            escribir("Menor de edad");
+        }
+
+        while (contador < 10) {
+            if (contador % 2 == 0) {
+                escribir("Par");
+            } else {
+                escribir("Impar");
+            }
+            contador = contador + 1;
+        }
+
+        do {
+            escribir(contador);
+            contador = contador + 1;
+        } while (contador < 20);
+
+        for (i in 0..10) {
+            when (i) {
+                1 -> escribir("Uno");
+                2 -> escribir("Dos");
+                else -> escribir("Otro numero");
+            }
+        }
+    }
+}

@@ -1,0 +1,43 @@
+package act1_lexico;
+
+class Proceso {
+
+    fun ejecucion() {
+
+        // 1. Condición sin paréntesis en 'if'
+        if edad >= 18 {
+            escribir("Mayor");
+        }
+
+        // 2. Ciclo 'while' con condición incompleta (falta ')')
+        while (contador < 10 {
+            contador = contador + 1;
+        }
+
+        // 3. Estructura 'else' sin 'if' previo o mal asociada por bloque incompleto
+        else {
+            escribir("Error de else huerfano");
+        }
+
+        // 4. Ciclo 'for' incompleto (falta el rango 'in inicio..fin')
+        for (i) {
+            escribir(i);
+        }
+
+        // 5. Expresión o condición inválida dentro de un 'if' (operador incompleto)
+        if (a > ) {
+            escribir("Error en condicion");
+        }
+
+        // 6. Caso sin valor dentro de la estructura 'when' (falta el valor antes de ->)
+        when (opcion) {
+            -> {
+                escribir("Opcion invalida");
+            }
+        }
+
+        // 7. Punto de recuperación: Sentencia con error recuperable que permite continuar hasta ';'
+        a = + * 5;
+        escribir("Continuacion exitosa tras recuperacion");
+    }
+}

@@ -8,209 +8,113 @@ package act1_lexico;
 /** CUP generated class containing symbol constants. */
 public class sym {
   /* terminals */
-  public static final int AS = 52;
-  public static final int IDENTIFIER = 102;
-  public static final int INTERNAL = 28;
-  public static final int GT = 80;
-  public static final int TYPEOF = 11;
-  public static final int CONST = 49;
-  public static final int INT_LITERAL = 99;
-  public static final int DOUBLE_COLON = 87;
-  public static final int GE = 78;
-  public static final int CONSTRUCTOR = 61;
-  public static final int ENUM = 35;
-  public static final int RBRACK = 94;
-  public static final int ACTUAL = 65;
-  public static final int CROSSINLINE = 43;
-  public static final int INIT = 62;
-  public static final int NOT_IS = 51;
-  public static final int LATEINIT = 46;
-  public static final int COMMA = 95;
-  public static final int CATCH = 22;
-  public static final int LEER = 112;
-  public static final int DOUBLE_LITERAL = 105;
-  public static final int RBRACE = 92;
-  public static final int NEQEQEQ = 74;
-  public static final int THROW = 24;
-  public static final int RPAREN = 90;
-  public static final int NOT_IN = 55;
-  public static final int INNER = 36;
-  public static final int EQEQEQ = 73;
-  public static final int LBRACK = 93;
-  public static final int LT = 79;
-  public static final int DOUBLE = 108;
-  public static final int LBRACE = 91;
-  public static final int LPAREN = 89;
-  public static final int OUT = 67;
-  public static final int PROTECTED = 27;
-  public static final int NOT = 84;
-  public static final int FALSE = 60;
-  public static final int TAILREC = 44;
-  public static final int LE = 77;
-  public static final int COMPANION = 63;
-  public static final int OBJECT = 6;
-  public static final int ERROR = 104;
-  public static final int OVERRIDE = 32;
-  public static final int FINAL = 30;
-  public static final int VAR = 9;
-  public static final int FLOAT = 107;
-  public static final int INLINE = 41;
+  public static final int IDENTIFIER = 59;
+  public static final int INTERNAL = 18;
+  public static final int GT = 34;
+  public static final int ARROW = 39;
+  public static final int INT_LITERAL = 60;
+  public static final int GE = 35;
+  public static final int RBRACK = 46;
+  public static final int COMMA = 47;
+  public static final int DOUBLE_LITERAL = 62;
+  public static final int LEER = 57;
+  public static final int RBRACE = 44;
+  public static final int RPAREN = 42;
+  public static final int LBRACK = 45;
+  public static final int LT = 32;
+  public static final int DOUBLE = 53;
+  public static final int LBRACE = 43;
+  public static final int LPAREN = 41;
+  public static final int PROTECTED = 17;
+  public static final int NOT = 38;
+  public static final int FALSE = 23;
+  public static final int LE = 33;
+  public static final int ERROR = 65;
+  public static final int FINAL = 19;
+  public static final int VAR = 7;
+  public static final int FLOAT = 52;
   public static final int PACKAGE = 2;
-  public static final int VAL = 8;
-  public static final int EXTERNAL = 45;
-  public static final int EQ = 81;
-  public static final int MOD = 72;
-  public static final int WHEN = 14;
+  public static final int VAL = 6;
+  public static final int EQ = 29;
+  public static final int MOD = 28;
+  public static final int WHEN = 10;
   public static final int CLASS = 4;
-  public static final int SUPER = 57;
-  public static final int ABSTRACT = 29;
-  public static final int TRUE = 59;
-  public static final int PLUS = 68;
-  public static final int WHILE = 15;
-  public static final int CHAR = 109;
-  public static final int INTERFACE = 5;
-  public static final int BOOLEAN = 110;
-  public static final int DO = 17;
-  public static final int FOR = 16;
-  public static final int DIV = 71;
-  public static final int VARARG = 47;
-  public static final int MULT = 70;
-  public static final int PUBLIC = 25;
-  public static final int RETURN = 18;
-  public static final int TRY = 21;
-  public static final int ELSE = 13;
-  public static final int BREAK = 19;
-  public static final int FUN = 7;
-  public static final int DOT = 97;
-  public static final int INT = 106;
-  public static final int STRING_LITERAL = 101;
-  public static final int SAFE_CALL = 86;
-  public static final int EQEQ = 75;
-  public static final int NULL = 58;
-  public static final int SEMICOLON = 96;
+  public static final int TRUE = 22;
+  public static final int PLUS = 24;
+  public static final int WHILE = 11;
+  public static final int CHAR = 54;
+  public static final int BOOLEAN = 55;
+  public static final int FOR = 13;
+  public static final int DO = 12;
+  public static final int DIV = 27;
+  public static final int MULT = 26;
+  public static final int RETURN = 20;
+  public static final int PUBLIC = 15;
+  public static final int ELSE = 9;
+  public static final int FUN = 5;
+  public static final int DOT = 49;
+  public static final int INT = 51;
+  public static final int STRING_LITERAL = 64;
+  public static final int EQEQ = 30;
+  public static final int NULL = 21;
+  public static final int SEMICOLON = 48;
   public static final int EOF = 0;
-  public static final int WHERE = 66;
-  public static final int THIS = 56;
-  public static final int SEALED = 33;
-  public static final int OPERATOR = 40;
   public static final int IMPORT = 3;
-  public static final int MINUS = 69;
-  public static final int IS = 50;
-  public static final int SUSPEND = 48;
-  public static final int FLOAT_LITERAL = 100;
-  public static final int NOINLINE = 42;
-  public static final int IN = 54;
-  public static final int OR = 83;
+  public static final int MINUS = 25;
+  public static final int FLOAT_LITERAL = 61;
+  public static final int IN = 14;
+  public static final int OR = 37;
   public static final int error = 1;
-  public static final int DATA = 34;
-  public static final int INFIX = 39;
-  public static final int FINALLY = 23;
-  public static final int ANNOTATION = 38;
-  public static final int CONTINUE = 20;
-  public static final int IF = 12;
-  public static final int AS_SAFE = 53;
-  public static final int COLON = 98;
-  public static final int EXPECT = 64;
-  public static final int CHAR_LITERAL = 103;
-  public static final int TYPEALIAS = 10;
-  public static final int STRING = 111;
-  public static final int RANGE = 88;
-  public static final int NEQ = 76;
-  public static final int ESCRIBIR = 113;
-  public static final int AND = 82;
-  public static final int VALUE = 37;
-  public static final int OPEN = 31;
-  public static final int PRIVATE = 26;
-  public static final int ELVIS = 85;
+  public static final int IF = 8;
+  public static final int COLON = 50;
+  public static final int CHAR_LITERAL = 63;
+  public static final int STRING = 56;
+  public static final int RANGE = 40;
+  public static final int NEQ = 31;
+  public static final int ESCRIBIR = 58;
+  public static final int AND = 36;
+  public static final int PRIVATE = 16;
   public static final String[] terminalNames = new String[] {
   "EOF",
   "error",
   "PACKAGE",
   "IMPORT",
   "CLASS",
-  "INTERFACE",
-  "OBJECT",
   "FUN",
   "VAL",
   "VAR",
-  "TYPEALIAS",
-  "TYPEOF",
   "IF",
   "ELSE",
   "WHEN",
   "WHILE",
-  "FOR",
   "DO",
-  "RETURN",
-  "BREAK",
-  "CONTINUE",
-  "TRY",
-  "CATCH",
-  "FINALLY",
-  "THROW",
+  "FOR",
+  "IN",
   "PUBLIC",
   "PRIVATE",
   "PROTECTED",
   "INTERNAL",
-  "ABSTRACT",
   "FINAL",
-  "OPEN",
-  "OVERRIDE",
-  "SEALED",
-  "DATA",
-  "ENUM",
-  "INNER",
-  "VALUE",
-  "ANNOTATION",
-  "INFIX",
-  "OPERATOR",
-  "INLINE",
-  "NOINLINE",
-  "CROSSINLINE",
-  "TAILREC",
-  "EXTERNAL",
-  "LATEINIT",
-  "VARARG",
-  "SUSPEND",
-  "CONST",
-  "IS",
-  "NOT_IS",
-  "AS",
-  "AS_SAFE",
-  "IN",
-  "NOT_IN",
-  "THIS",
-  "SUPER",
+  "RETURN",
   "NULL",
   "TRUE",
   "FALSE",
-  "CONSTRUCTOR",
-  "INIT",
-  "COMPANION",
-  "EXPECT",
-  "ACTUAL",
-  "WHERE",
-  "OUT",
   "PLUS",
   "MINUS",
   "MULT",
   "DIV",
   "MOD",
-  "EQEQEQ",
-  "NEQEQEQ",
+  "EQ",
   "EQEQ",
   "NEQ",
-  "LE",
-  "GE",
   "LT",
+  "LE",
   "GT",
-  "EQ",
+  "GE",
   "AND",
   "OR",
   "NOT",
-  "ELVIS",
-  "SAFE_CALL",
-  "DOUBLE_COLON",
+  "ARROW",
   "RANGE",
   "LPAREN",
   "RPAREN",
@@ -222,13 +126,6 @@ public class sym {
   "SEMICOLON",
   "DOT",
   "COLON",
-  "INT_LITERAL",
-  "FLOAT_LITERAL",
-  "STRING_LITERAL",
-  "IDENTIFIER",
-  "CHAR_LITERAL",
-  "ERROR",
-  "DOUBLE_LITERAL",
   "INT",
   "FLOAT",
   "DOUBLE",
@@ -236,7 +133,14 @@ public class sym {
   "BOOLEAN",
   "STRING",
   "LEER",
-  "ESCRIBIR"
+  "ESCRIBIR",
+  "IDENTIFIER",
+  "INT_LITERAL",
+  "FLOAT_LITERAL",
+  "DOUBLE_LITERAL",
+  "CHAR_LITERAL",
+  "STRING_LITERAL",
+  "ERROR"
   };
 }
 

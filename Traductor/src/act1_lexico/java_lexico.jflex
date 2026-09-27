@@ -46,7 +46,7 @@ Comment            = {TraditionalComment} | {EndOfLineComment}
     {Whitespace}       { /* Ignorar */ }
     {Comment}          { /* Ignorar */ }
 
-    /* Palabras Reservadas Nativas  */
+    /* Palabras Reservadas */
     "package"          { return symbol(sym.PACKAGE, yytext()); }
     "import"           { return symbol(sym.IMPORT, yytext()); }
     "class"            { return symbol(sym.CLASS, yytext()); }
@@ -58,39 +58,58 @@ Comment            = {TraditionalComment} | {EndOfLineComment}
     "var"              { return symbol(sym.VAR, yytext()); }
     "val"              { return symbol(sym.VAL, yytext()); }
     "fun"              { return symbol(sym.FUN, yytext()); }
+    
+    /* Estructuras de Control (Kotlin) */
     "if"               { return symbol(sym.IF, yytext()); }
     "else"             { return symbol(sym.ELSE, yytext()); }
+    "when"             { return symbol(sym.WHEN, yytext()); }
+    "while"            { return symbol(sym.WHILE, yytext()); }
+    "do"               { return symbol(sym.DO, yytext()); }
+    "for"              { return symbol(sym.FOR, yytext()); }
+    "in"               { return symbol(sym.IN, yytext()); }
+
+    /* Literales Booleanos y Nulos */
     "true"             { return symbol(sym.TRUE, yytext()); }
     "false"            { return symbol(sym.FALSE, yytext()); }
     "null"             { return symbol(sym.NULL, yytext()); }
+    
+    /* Sentencias Específicas */
     "leer"             { return symbol(sym.LEER, yytext()); }
     "escribir"         { return symbol(sym.ESCRIBIR, yytext()); }
     "return"           { return symbol(sym.RETURN, yytext()); }
 
     /* Tipos de Datos */
-    "int"              { return symbol(sym.INT, yytext()); }
-    "float"            { return symbol(sym.FLOAT, yytext()); }
-    "double"           { return symbol(sym.DOUBLE, yytext()); }
-    "char"             { return symbol(sym.CHAR, yytext()); }
-    "boolean"          { return symbol(sym.BOOLEAN, yytext()); }
+    "Int"              { return symbol(sym.INT, yytext()); }
+    "Float"            { return symbol(sym.FLOAT, yytext()); }
+    "Double"           { return symbol(sym.DOUBLE, yytext()); }
+    "Char"             { return symbol(sym.CHAR, yytext()); }
+    "Boolean"          { return symbol(sym.BOOLEAN, yytext()); }
     "String"           { return symbol(sym.STRING, yytext()); }
 
-    /* Operadores y Símbolos */
+    /* Operadores Aritméticos y Asignación */
     "="                { return symbol(sym.EQ, yytext()); }
     "+"                { return symbol(sym.PLUS, yytext()); }
     "-"                { return symbol(sym.MINUS, yytext()); }
     "*"                { return symbol(sym.MULT, yytext()); }
     "/"                { return symbol(sym.DIV, yytext()); }
     "%"                { return symbol(sym.MOD, yytext()); }
+    
+    /* Operadores Relacionales */
     "=="               { return symbol(sym.EQEQ, yytext()); }
     "!="               { return symbol(sym.NEQ, yytext()); }
     "<"                { return symbol(sym.LT, yytext()); }
     "<="               { return symbol(sym.LE, yytext()); }
     ">"                { return symbol(sym.GT, yytext()); }
     ">="               { return symbol(sym.GE, yytext()); }
+
+    /* Operadores Lógicos */
     "&&"               { return symbol(sym.AND, yytext()); }
     "||"               { return symbol(sym.OR, yytext()); }
     "!"                { return symbol(sym.NOT, yytext()); }
+
+    /* Operadores Especiales de Kotlin */
+    "->"               { return symbol(sym.ARROW, yytext()); }
+    ".."               { return symbol(sym.RANGE, yytext()); }
 
     /* Delimitadores */
     "("                { return symbol(sym.LPAREN, yytext()); }
@@ -119,10 +138,9 @@ Comment            = {TraditionalComment} | {EndOfLineComment}
                          System.err.println("Error Lexico [Linea " + (yyline+1) + ", Columna " + (yycolumn+1) + "]: Identificador invalido '" + yytext() + "'");
                          return symbol(sym.ERROR, yytext()); 
                        }
-
 }
 
-/* Carácter no reconocido */
+/* Carácter no permitido */
 [^]                    { 
                          System.err.println("Error Lexico [Linea " + (yyline+1) + ", Columna " + (yycolumn+1) + "]: Caracter no permitido '" + yytext() + "'");
                          return symbol(sym.ERROR, yytext()); 
