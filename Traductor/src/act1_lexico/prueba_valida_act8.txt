@@ -1,0 +1,33 @@
+package com.ejemplo;
+
+class MiClase {
+    
+    fun iniciar() {
+        escribir("Inicio del programa");
+    }
+
+    fun mostrar(valor: int) {
+        escribir(valor);
+    }
+
+    fun sumar(a: int, b: int): int {
+        return a + b;
+    }
+
+    fun obtenerValor(): int {
+        return 100;
+    }
+
+    fun proceso() {
+        iniciar();
+        mostrar(10);
+        
+        resultado = sumar(5, 10);
+        valor = obtenerValor();
+        
+        total = sumar(a, b) + obtenerValor();
+        
+        escribir(resultado);
+        escribir(valor);
+    }
+}

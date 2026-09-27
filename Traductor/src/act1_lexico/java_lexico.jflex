@@ -65,6 +65,7 @@ Comment            = {TraditionalComment} | {EndOfLineComment}
     "null"             { return symbol(sym.NULL, yytext()); }
     "leer"             { return symbol(sym.LEER, yytext()); }
     "escribir"         { return symbol(sym.ESCRIBIR, yytext()); }
+    "return"           { return symbol(sym.RETURN, yytext()); }
 
     /* Tipos de Datos */
     "int"              { return symbol(sym.INT, yytext()); }

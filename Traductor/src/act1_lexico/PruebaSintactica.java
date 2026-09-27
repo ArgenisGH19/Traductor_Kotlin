@@ -11,7 +11,7 @@ public class PruebaSintactica {
         System.out.println("3. Rubio Calderon, Gerardo Josue");
         System.out.println("=========================================================\n");
 
-        String rutaArchivo = "src/act1_lexico/prueba_invalida_act6.txt";
+        String rutaArchivo = "src/act1_lexico/prueba_invalida_act8.txt";
         System.out.println("--- INICIANDO ANALISIS SINTACTICO ---");
         System.out.println("Archivo a analizar: " + rutaArchivo + "\n");
 

@@ -10,8 +10,6 @@
             <file>file:/C:/Users/gerar/Desktop/Gerardito%20Java%202/Traductor_Kotlin/Traductor/src/act1_lexico/java_lexico.cup</file>
             <file>file:/C:/Users/gerar/Desktop/Gerardito%20Java%202/Traductor_Kotlin/Traductor/src/act1_lexico/AnalizadorLexico.java</file>
             <file>file:/C:/Users/gerar/Desktop/Gerardito%20Java%202/Traductor_Kotlin/Traductor/src/act1_lexico/java_sintactico.cup</file>
-            <file>file:/C:/Users/gerar/Desktop/Gerardito%20Java%202/Traductor_Kotlin/Traductor/src/act1_lexico/programa_valido_prueba.txt</file>
-            <file>file:/C:/Users/gerar/Desktop/Gerardito%20Java%202/Traductor_Kotlin/Traductor/src/act1_lexico/programa_errores_prueba.txt</file>
             <file>file:/C:/Users/gerar/Desktop/Gerardito%20Java%202/Traductor_Kotlin/Traductor/src/act1_lexico/ManejoErrores.java</file>
             <file>file:/C:/Users/gerar/Desktop/Gerardito%20Java%202/Traductor_Kotlin/Traductor/src/act1_lexico/ErrorLexico.java</file>
             <file>file:/C:/Users/gerar/Desktop/Gerardito%20Java%202/Traductor_Kotlin/Traductor/src/act1_lexico/tokens_java.txt</file>
@@ -19,7 +17,6 @@
             <file>file:/C:/Users/gerar/Desktop/Gerardito%20Java%202/Traductor_Kotlin/Traductor/src/act1_lexico/PruebaSintactica.java</file>
             <file>file:/C:/Users/gerar/Desktop/Gerardito%20Java%202/Traductor_Kotlin/Traductor/src/act1_lexico/GeneradorCupSintantico.java</file>
             <file>file:/C:/Users/gerar/Desktop/Gerardito%20Java%202/Traductor_Kotlin/Traductor/src/act1_lexico/GeneradorJFlexLexico.java</file>
-            <file>file:/C:/Users/gerar/Desktop/Gerardito%20Java%202/Traductor_Kotlin/Traductor/src/act1_lexico/programa_fatal_prueba.txt</file>
             <file>file:/C:/Users/gerar/Desktop/Gerardito%20Java%202/Traductor_Kotlin/Traductor/src/act1_lexico/java_lexico.jflex</file>
         </group>
     </open-files>

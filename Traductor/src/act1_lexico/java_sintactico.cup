@@ -48,9 +48,14 @@ terminal String LEER, ESCRIBIR;
 // 3. DEFINICION DE NO TERMINALES Y PRECEDENCIA
 // ---------------------------------------------------------
 non terminal programa, estructura_paquete, lista_importaciones, importacion, clase_principal, ruta;
-non terminal metodo, cuerpo_metodo, lista_sentencias, sentencia;
+non terminal lista_metodos, metodo, cuerpo_metodo, lista_sentencias, sentencia;
 non terminal lectura, escritura, asignacion;
 non terminal lista_identificadores, lista_elementos, elemento, expresion;
+// Nuevas cositas para reconocer metodos (esto es actualizacion de la tarea 8)
+non terminal tipo_dato;
+non terminal parametros_optativos, lista_parametros, parametro, tipo_retorno_optativo;
+non terminal llamada_metodo, lista_argumentos;
+non terminal retorno;
 
 // Precedencia para evitar conflictos en expresiones matemáticas y lógicas
 precedence left OR;
@@ -62,7 +67,7 @@ precedence left MULT, DIV, MOD;
 start with programa; 
 
 // ---------------------------------------------------------
-// 4. REGLAS GRAMATICALES (Sin acentos)
+// 4. REGLAS GRAMATICALES
 // ---------------------------------------------------------
 
 programa ::= estructura_paquete lista_importaciones clase_principal {: System.out.println("Analisis sintactico finalizado correctamente\n"); :}
@@ -88,16 +93,47 @@ ruta ::= IDENTIFIER
        | ruta DOT IDENTIFIER
        ;
 
-// La clase principal ahora contiene un método obligatorio
-clase_principal ::= CLASS IDENTIFIER LBRACE metodo RBRACE {: System.out.println("Clase principal reconocida correctamente. Estructura de llaves valida."); :}
+// La clase principal ahora acepta una lista de métodos (para que pueda haber más de uno)
+clase_principal ::= CLASS IDENTIFIER LBRACE lista_metodos RBRACE {: System.out.println("Clase principal reconocida correctamente. Estructura de llaves valida."); :}
                   | CLASS error RBRACE {: System.out.println("-> [Recuperacion] Error en definicion de clase. Se omitio hasta '}'"); :}
                   ;
 
+lista_metodos ::= lista_metodos metodo
+                | metodo
+                ;
 
+// --- TIPOS DE DATO ---
+tipo_dato ::= INT | FLOAT | DOUBLE | BOOLEAN | STRING | CHAR ;
 
-metodo ::= FUN IDENTIFIER LPAREN RPAREN LBRACE cuerpo_metodo RBRACE {: System.out.println("Regla reconocida: declaracion de metodo"); :} ;
+// --- DEFINICIÓN DE MÉTODOS (Sintaxis Kotlin) ---
+metodo ::= FUN IDENTIFIER LPAREN parametros_optativos RPAREN tipo_retorno_optativo LBRACE cuerpo_metodo RBRACE 
+         {: System.out.println("Regla reconocida: definicion_metodo"); :}
+         | FUN IDENTIFIER error LBRACE cuerpo_metodo RBRACE 
+         {: System.out.println("-> [Recuperacion] Error sintactico: se esperaba '(' o estructura de parametros invalida en el metodo"); :}
+         ;
 
-cuerpo_metodo ::= lista_sentencias {: System.out.println("Regla reconocida: cuerpo de metodo analizado"); :} ;
+tipo_retorno_optativo ::= COLON tipo_dato {: System.out.println("Regla reconocida: metodo_con_retorno"); :}
+                        | /* vacio */ {: System.out.println("Regla reconocida: metodo_sin_retorno"); :}
+                        ;
+
+parametros_optativos ::= lista_parametros {: System.out.println("Regla reconocida: metodo_con_parametros"); :}
+                       | /* vacio */ {: System.out.println("Regla reconocida: metodo_sin_parametros"); :}
+                       ;
+
+lista_parametros ::= parametro
+                   | lista_parametros COMMA parametro
+                   | lista_parametros COMMA error {: System.out.println("-> [Recuperacion] Error sintactico: se esperaba un parametro despues de ','"); :}
+                   ;
+
+parametro ::= IDENTIFIER COLON tipo_dato {: System.out.println("Regla reconocida: parametro valido"); :}
+            | error COLON tipo_dato {: System.out.println("-> [Recuperacion] Error sintactico: se esperaba un identificador para el parametro"); :}
+            | IDENTIFIER COLON error {: System.out.println("-> [Recuperacion] Error sintactico: tipo de dato invalido o faltante"); :}
+            ;
+
+// --- CUERPO Y SENTENCIAS ---
+cuerpo_metodo ::= lista_sentencias {: System.out.println("Regla reconocida: cuerpo de metodo analizado"); :} 
+                | /* vacio, para permitir metodos sin sentencias dentro */ {: System.out.println("Regla reconocida: cuerpo de metodo vacio"); :}
+                ;
 
 lista_sentencias ::= lista_sentencias sentencia 
                    | sentencia ;
@@ -105,9 +141,30 @@ lista_sentencias ::= lista_sentencias sentencia
 sentencia ::= lectura
             | escritura
             | asignacion
+            | llamada_metodo SEMICOLON {: System.out.println("Regla reconocida: llamada utilizada como sentencia"); :}
+            | retorno
             | error SEMICOLON {: System.out.println("-> [Recuperacion] Se omitio la estructura con error hasta el ';'"); :}
             ;
 
+// --- RETORNO ---
+retorno ::= RETURN expresion SEMICOLON {: System.out.println("Regla reconocida: retorno con expresion"); :}
+          | RETURN SEMICOLON {: System.out.println("Regla reconocida: retorno sin expresion"); :}
+          | RETURN error SEMICOLON {: System.out.println("-> [Recuperacion] Error sintactico: se esperaba una expresion despues de 'return'"); :}
+          ;
+
+// --- LLAMADAS A MÉTODOS ---
+llamada_metodo ::= IDENTIFIER LPAREN RPAREN {: System.out.println("Regla reconocida: llamada_sin_argumentos"); :}
+                 | IDENTIFIER LPAREN lista_argumentos RPAREN {: System.out.println("Regla reconocida: llamada_metodo_con_argumentos"); :}
+                 | IDENTIFIER LPAREN error RPAREN {: System.out.println("-> [Recuperacion] Error sintactico en los argumentos de la llamada"); :}
+                 ;
+
+lista_argumentos ::= expresion {: System.out.println("Regla reconocida: argumento procesado"); :}
+                   | lista_argumentos COMMA expresion
+                   | lista_argumentos COMMA error {: System.out.println("-> [Recuperacion] Error sintactico: se esperaba un argumento despues de ','"); :}
+                   | error COMMA expresion {: System.out.println("-> [Recuperacion] Error sintactico: argumento invalido o faltante antes de ','"); :}
+                   ;
+
+// --- LECTURA, ESCRITURA Y ASIGNACIÓN ---
 lectura ::= LEER LPAREN lista_identificadores RPAREN SEMICOLON {: System.out.println("Regla reconocida: sentencia de lectura"); :}
           | LEER LPAREN error RPAREN SEMICOLON {: System.out.println("-> [Recuperacion] Error: Falta de coma o estructura invalida en lectura"); :}
           ;
@@ -135,6 +192,7 @@ asignacion ::= IDENTIFIER EQ expresion SEMICOLON {: System.out.println("Regla re
              | IDENTIFIER EQ error SEMICOLON {: System.out.println("-> [Recuperacion] Error: Expresion aritmetica o logica incompleta"); :}
              ;
 
+// --- EXPRESIONES ---
 expresion ::= expresion PLUS expresion
             | expresion MINUS expresion
             | expresion MULT expresion
@@ -149,4 +207,5 @@ expresion ::= expresion PLUS expresion
             | FLOAT_LITERAL
             | TRUE
             | FALSE
+            | llamada_metodo {: System.out.println("Regla reconocida: llamada utilizada dentro de expresion"); :}
             ;

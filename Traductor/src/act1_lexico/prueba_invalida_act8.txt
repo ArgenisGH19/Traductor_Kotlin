@@ -1,0 +1,27 @@
+package com.ejemplo;
+
+class MiClase {
+    
+    // Error: Falta de parentesis en metodo
+    fun iniciar {
+        escribir("Inicio");
+    }
+
+    // Error: Coma duplicada y parametro incompleto
+    fun sumar(a: int,, b: int): int {
+        return a + b;
+    }
+
+    fun proceso() {
+        iniciar;
+        
+        sumar(a,,b);
+        
+        sumar(,a);
+        
+        sumar(a, b;
+
+       
+        escribir("Pruebas finalizadas");
+    }
+}
