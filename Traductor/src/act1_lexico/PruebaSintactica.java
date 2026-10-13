@@ -10,15 +10,15 @@ public class PruebaSintactica {
         System.out.println("2. Gutierrez Hurtado, Argenis Adan");
         System.out.println("3. Rubio Calderon, Gerardo Josue");
         System.out.println("=========================================================\n");
-
-        String rutaArchivo = "src/act1_lexico/pruebava7.txt";
-        System.out.println("--- INICIANDO ANALISIS SINTACTICO ---");
+/* semantica_invalida_act9   */
+        String rutaArchivo = "src/act1_lexico/semantica_valida_act9.txt"; 
+        System.out.println("--- INICIANDO ANALISIS SINTACTICO Y SEMANTICO ---");
         System.out.println("Archivo a analizar: " + rutaArchivo + "\n");
 
         try {
             File archivo = new File(rutaArchivo);
             if (!archivo.exists()) {
-                System.err.println("¡ERROR! No se encontró el archivo de prueba en: " + archivo.getAbsolutePath());
+                System.err.println("¡ERROR! No se encontro el archivo de prueba en: " + archivo.getAbsolutePath());
                 return;
             }
 
@@ -37,8 +37,13 @@ public class PruebaSintactica {
             LexerJava lexer = new LexerJava(reader);
             parser sintactico = new parser(lexer);
 
+            // Analiza el archivo y llena la tabla de símbolos en memoria
             sintactico.parse();
+            
             System.out.println("\nAnalisis sintactico finalizado con exito.");
+
+            // Atoleeeee!
+            sintactico.tablaSimbolos.imprimirTabla();
 
         } catch (Exception e) {
             System.err.println("\nEl analisis no puede continuar. Abortando...");

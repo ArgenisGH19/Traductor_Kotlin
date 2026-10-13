@@ -1,0 +1,20 @@
+package org.escuela;
+
+// Error 1: Clase no usa PascalCase
+class mi_sistema {
+
+    fun procesoMalHecho() {
+        // Error 2: Constante no usa SNAKE_CASE (mayúsculas)
+        val valorFijo: int = 50;
+
+        // Error 3: Variable no usa camelCase
+        var Variable_Mala: int = 10;
+        
+        // Error 4: Variable duplicada (ya existe 'x' en este bloque)
+        var x: int = 5;
+        var x: int = 10;
+
+        // Error 5: Uso de variable NO declarada
+        variableFantasma = 20;
+    }
+}

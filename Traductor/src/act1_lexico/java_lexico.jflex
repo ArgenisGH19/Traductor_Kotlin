@@ -10,7 +10,7 @@ import java_cup.runtime.Symbol;
 %column
 %cup
 %cupsym act1_lexico.sym
-
+/* Para la actividad 9 se menciona la captura de Posicion, pero esto ya lo agregamos anteriormente */
 %{
     private Symbol symbol(int type) {
         return new Symbol(type, yyline + 1, yycolumn + 1);

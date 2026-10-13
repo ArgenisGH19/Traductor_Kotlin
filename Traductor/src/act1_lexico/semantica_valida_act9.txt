@@ -1,0 +1,19 @@
+package org.escuela;
+
+class SistemaEscolar {
+    
+    fun registrar() {
+        escribir("Registrando sistema");
+    }
+
+    fun calcularPromedio(notaUno: int, notaDos: int): int {
+        // Constante en SNAKE_CASE (PascalCase de mayúsculas)
+        val MAX_CALIFICACION: int = 100;
+        
+        // Variables locales en camelCase
+        var sumaNotas: int = notaUno + notaDos;
+        var promedioFinal: int = sumaNotas / 2;
+        
+        return promedioFinal;
+    }
+}

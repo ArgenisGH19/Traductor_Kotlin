@@ -1,4 +1,4 @@
-package com.ejemplo.proyecto;
+package com.ejemplo;
 
 import kotlin.math;
 import java.util;
