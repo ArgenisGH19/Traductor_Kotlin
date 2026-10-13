@@ -2,7 +2,7 @@ package org.escuela;
 
 class SistemaEscolar {
     
-    fun registrar() {
+    fun registrar(a: int, b: int) {
         escribir("Registrando sistema");
     }
 

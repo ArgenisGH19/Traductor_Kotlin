@@ -10,10 +10,14 @@ public class PruebaSintactica {
         System.out.println("2. Gutierrez Hurtado, Argenis Adan");
         System.out.println("3. Rubio Calderon, Gerardo Josue");
         System.out.println("=========================================================\n");
-/* semantica_invalida_act9   */
+
+        // Cambia el nombre del archivo .txt aquí según la prueba que quieras hacer
         String rutaArchivo = "src/act1_lexico/semantica_valida_act9.txt"; 
         System.out.println("--- INICIANDO ANALISIS SINTACTICO Y SEMANTICO ---");
         System.out.println("Archivo a analizar: " + rutaArchivo + "\n");
+
+        // Declaramos el parser afuera del try para poder acceder a sus variables en el catch si hay error fatal
+        parser sintactico = null;
 
         try {
             File archivo = new File(rutaArchivo);
@@ -35,19 +39,37 @@ public class PruebaSintactica {
 
             Reader reader = new InputStreamReader(pushbackInputStream, "UTF-8");
             LexerJava lexer = new LexerJava(reader);
-            parser sintactico = new parser(lexer);
+            sintactico = new parser(lexer);
 
-            // Analiza el archivo y llena la tabla de símbolos en memoria
+            // Analizamos el archivo y llenamos la tabla de símbolos
             sintactico.parse();
-            
-            System.out.println("\nAnalisis sintactico finalizado con exito.");
 
-            // Atoleeeee!
+            // --- IMPRESIÓN DE DIAGNÓSTICO FINAL (Situación 1 y 2) ---
+            System.out.println("\n========================================================");
+            if (sintactico.totalErrores == 0) {
+                System.out.println("ANALISIS FINALIZADO CORRECTAMENTE");
+                System.out.println("Errores sintacticos encontrados: 0");
+                System.out.println("Estado: Codigo sintacticamente valido.");
+            } else if (!sintactico.errorFatal) {
+                System.out.println("ANALISIS COMPLETADO CON ERRORES");
+                System.out.println("Errores sintacticos encontrados: " + sintactico.totalErrores);
+                System.out.println("Estado: Se completo el recorrido del archivo, \npero el codigo contiene errores sintacticos.");
+            }
+            System.out.println("========================================================\n");
+
+            // Imprimimos la tabla de símbolos al final
             sintactico.tablaSimbolos.imprimirTabla();
 
         } catch (Exception e) {
-            System.err.println("\nEl analisis no puede continuar. Abortando...");
-            e.printStackTrace();
+            // --- IMPRESIÓN DE DIAGNÓSTICO FINAL (Situación 3: Error Fatal) ---
+            System.err.println("\n========================================================");
+            System.err.println("ANALISIS INTERRUMPIDO");
+            System.err.println("Estado: Se encontro un error sintactico no recuperable.");
+            
+            if (sintactico != null && sintactico.ultimaLinea != -1) {
+                System.err.println("\nUltima ubicacion analizada: linea " + sintactico.ultimaLinea + ", columna " + sintactico.ultimaColumna);
+            }
+            System.err.println("========================================================\n");
         }
     }
 }

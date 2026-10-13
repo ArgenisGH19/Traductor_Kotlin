@@ -22,12 +22,16 @@ class MiClase {
         iniciar();
         mostrar(10);
         
-        resultado = sumar(5, 10);
-        valor = obtenerValor();
+        // ¡Ahora sí las declaramos con var y su tipo!
+        var resultado: int = sumar(5, 10);
+        var valorObtenido: int = obtenerValor(); // Le cambié el nombre para no confundir con el 'valor' del otro método
         
-        total = sumar(a, b) + obtenerValor();
+        // Declaramos 'a' y 'b' locales para poder usarlas
+        var a: int = 20;
+        var b: int = 30;
+        var total: int = sumar(a, b) + obtenerValor();
         
         escribir(resultado);
-        escribir(valor);
+        escribir(valorObtenido);
     }
 }

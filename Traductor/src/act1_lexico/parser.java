@@ -699,20 +699,60 @@ public class parser extends java_cup.runtime.lr_parser {
 
 
 
-    // ¡Aquí instanciamos nuestra memoria semántica!
+    // ¡Nuestra memoria semántica intacta!
     public TablaSimbolos tablaSimbolos = new TablaSimbolos();
 
+    // --- 1. CONTADORES GLOBALES Y VARIABLES DE ESTADO ---
+    public int totalErrores = 0;
+    public boolean errorFatal = false;
+    
+    public int ultimaLinea = -1;
+    public int ultimaColumna = -1;
+    public String ultimoToken = "";
+
+    // --- 2. EL ATRAPAMOSCAS ---
     @Override
     public void syntax_error(Symbol s) {
-        String token = (s.value != null) ? s.value.toString() : "desconocido";
-        System.err.println("Error sintactico en linea " + s.left + 
-                           ", columna " + s.right + ": se encontro '" + token + "'");
+        totalErrores++;
+        ultimaLinea = s.left;
+        ultimaColumna = s.right;
+        ultimoToken = (s.value != null) ? s.value.toString() : "desconocido";
     }
 
+    // --- 3. MANEJO DE ERROR FATAL ---
     @Override
     public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception {
-        System.err.println("Error fatal en linea " + s.left + ", columna " + s.right);
-        System.err.println("El analisis sintactico no puede continuar.");
+        errorFatal = true;
+        ultimaLinea = s.left;
+        ultimaColumna = s.right;
+        throw new Exception("Error sintactico irrecuperable");
+    }
+
+    // --- 4. NUESTRO GENERADOR DE DIAGNÓSTICOS (EN ROJO) ---
+    public void imprimirDiagnostico(String descripcion, String esperado, String sugerencia, String ejemplo) {
+        System.err.println("========================================================");
+        System.err.println("ERROR SINTACTICO #" + totalErrores);
+        System.err.println("========================================================");
+        System.err.println("Ubicacion: Linea " + ultimaLinea + ", columna " + ultimaColumna);
+        System.err.println("Elemento encontrado: '" + ultimoToken + "'\n");
+        
+        System.err.println("Descripcion:");
+        System.err.println(descripcion + "\n");
+        
+        System.err.println("Elemento esperado:");
+        System.err.println(esperado + "\n");
+        
+        System.err.println("Sugerencia:");
+        System.err.println(sugerencia + "\n");
+        
+        if (ejemplo != null && !ejemplo.isEmpty()) {
+            System.err.println("Ejemplo de posible correccion:");
+            System.err.println(ejemplo + "\n");
+        }
+        
+        System.err.println("Estado:");
+        System.err.println("Error recuperable. El analisis continuara.");
+        System.err.println("========================================================\n");
     }
 
 
@@ -758,7 +798,7 @@ class CUP$parser$actions {
           case 1: // programa ::= estructura_paquete lista_importaciones clase_principal 
             {
               Object RESULT =null;
-		 System.out.println("Analisis sintactico y semantico finalizado correctamente"); 
+
               CUP$parser$result = parser.getSymbolFactory().newSymbol("programa",0, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-2)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;
@@ -767,7 +807,7 @@ class CUP$parser$actions {
           case 2: // programa ::= lista_importaciones clase_principal 
             {
               Object RESULT =null;
-		 System.out.println("Analisis sintactico y semantico finalizado correctamente"); 
+
               CUP$parser$result = parser.getSymbolFactory().newSymbol("programa",0, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-1)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;
@@ -776,7 +816,7 @@ class CUP$parser$actions {
           case 3: // programa ::= estructura_paquete clase_principal 
             {
               Object RESULT =null;
-		 System.out.println("Analisis sintactico y semantico finalizado correctamente"); 
+
               CUP$parser$result = parser.getSymbolFactory().newSymbol("programa",0, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-1)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;
@@ -785,7 +825,7 @@ class CUP$parser$actions {
           case 4: // programa ::= clase_principal 
             {
               Object RESULT =null;
-		 System.out.println("Analisis sintactico y semantico finalizado correctamente"); 
+
               CUP$parser$result = parser.getSymbolFactory().newSymbol("programa",0, ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;
@@ -812,7 +852,7 @@ class CUP$parser$actions {
           case 7: // estructura_paquete ::= PACKAGE error SEMICOLON 
             {
               Object RESULT =null;
-		 System.out.println("-> [Recuperacion] Error en declaracion de paquete"); 
+		 parser.imprimirDiagnostico("Estructura de paquete malformada.", "Una ruta de paquete valida (ej. com.mi.paquete).", "Asegurate de especificar el nombre del paquete correctamente y cerrar con ';'.", "package com.mi.paquete;"); 
               CUP$parser$result = parser.getSymbolFactory().newSymbol("estructura_paquete",1, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-2)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;
@@ -848,7 +888,7 @@ class CUP$parser$actions {
           case 11: // importacion ::= IMPORT error SEMICOLON 
             {
               Object RESULT =null;
-		 System.out.println("-> [Recuperacion] Error en importacion"); 
+		 parser.imprimirDiagnostico("Declaracion de importacion invalida.", "Una ruta de paquete o clase a importar.", "Verifica la sintaxis de la importacion.", "import java.util.*;"); 
               CUP$parser$result = parser.getSymbolFactory().newSymbol("importacion",3, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-2)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;
@@ -914,7 +954,7 @@ class CUP$parser$actions {
           case 17: // clase_principal ::= CLASS error RBRACE 
             {
               Object RESULT =null;
-		 System.out.println("-> [Recuperacion] Error en definicion de clase"); 
+		 parser.imprimirDiagnostico("Error en la definicion de la clase principal.", "Un identificador valido para la clase seguido de llaves {}.", "Revisa el nombre de la clase y su estructura.", "class MiClase { ... }"); 
               CUP$parser$result = parser.getSymbolFactory().newSymbol("clase_principal",35, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-2)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;
@@ -968,7 +1008,7 @@ class CUP$parser$actions {
           case 22: // metodo ::= FUN IDENTIFIER error LBRACE cuerpo_metodo RBRACE 
             {
               Object RESULT =null;
-		 System.out.println("-> [Recuperacion] Error sintactico: se esperaba '(' o estructura de parametros invalida en el metodo"); 
+		 parser.imprimirDiagnostico("Falta la lista de parametros delimitada por parentesis en la declaracion del metodo.", "Parentesis () despues del identificador.", "Agrega () despues del nombre del metodo, incluso si no recibe parametros.", "fun iniciar() {"); 
               CUP$parser$result = parser.getSymbolFactory().newSymbol("metodo",6, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-5)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;
@@ -1031,7 +1071,7 @@ class CUP$parser$actions {
           case 29: // lista_parametros ::= lista_parametros COMMA error 
             {
               Object RESULT =null;
-		 System.out.println("-> [Recuperacion] Error sintactico: se esperaba un parametro despues de ','"); 
+		 parser.imprimirDiagnostico("Se encontro un elemento invalido o coma duplicada en los parametros.", "Un identificador de parametro (ej. a: int).", "Verifica no tener comas duplicadas o parametros vacios.", "fun sumar(a: int, b: int)"); 
               CUP$parser$result = parser.getSymbolFactory().newSymbol("lista_parametros",26, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-2)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;
@@ -1058,7 +1098,7 @@ class CUP$parser$actions {
           case 31: // parametro ::= error COLON tipo_dato 
             {
               Object RESULT =null;
-		 System.out.println("-> [Recuperacion] Error sintactico: se esperaba un identificador para el parametro"); 
+		 parser.imprimirDiagnostico("Se esperaba un nombre para el parametro.", "Un identificador valido antes de los dos puntos.", "Asegurate de nombrar el parametro.", "valor: int"); 
               CUP$parser$result = parser.getSymbolFactory().newSymbol("parametro",27, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-2)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;
@@ -1067,7 +1107,7 @@ class CUP$parser$actions {
           case 32: // parametro ::= IDENTIFIER COLON error 
             {
               Object RESULT =null;
-		 System.out.println("-> [Recuperacion] Error sintactico: tipo de dato invalido o faltante"); 
+		 parser.imprimirDiagnostico("Tipo de dato invalido o faltante en el parametro.", "Un tipo de dato valido (int, float, etc.).", "Declara el tipo de dato despues de los dos puntos.", "valor: int"); 
               CUP$parser$result = parser.getSymbolFactory().newSymbol("parametro",27, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-2)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;
@@ -1178,7 +1218,7 @@ class CUP$parser$actions {
           case 44: // bloque ::= LBRACE error RBRACE 
             {
               Object RESULT =null;
-		 System.out.println("-> [Recuperacion] Error sintactico dentro del bloque"); 
+		 parser.imprimirDiagnostico("Error de sintaxis dentro del bloque de codigo.", "Instrucciones validas.", "Revisa las sentencias dentro de las llaves { }.", ""); 
               CUP$parser$result = parser.getSymbolFactory().newSymbol("bloque",10, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-2)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;
@@ -1295,7 +1335,7 @@ class CUP$parser$actions {
           case 57: // sentencia ::= error SEMICOLON 
             {
               Object RESULT =null;
-		 System.out.println("-> [Recuperacion] Se omitio instruccion invalida hasta ';'"); 
+		 parser.imprimirDiagnostico("Instruccion no reconocida o malformada.", "Una sentencia valida.", "Verifica la estructura de la instruccion. Si es una llamada a metodo sin parametros, agregale '()'.", "iniciar();"); 
               CUP$parser$result = parser.getSymbolFactory().newSymbol("sentencia",9, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-1)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;
@@ -1322,7 +1362,7 @@ class CUP$parser$actions {
           case 60: // seleccion ::= IF error RPAREN bloque 
             {
               Object RESULT =null;
-		 System.err.println("Error sintactico: se esperaba '(' despues de 'if'"); 
+		 parser.imprimirDiagnostico("Condicion malformada o falta de parentesis de apertura en 'if'.", "Un parentesis '(' seguido de una condicion.", "Agrega el parentesis de apertura para la condicion.", "if (x > 0) {"); 
               CUP$parser$result = parser.getSymbolFactory().newSymbol("seleccion",11, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-3)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;
@@ -1349,7 +1389,7 @@ class CUP$parser$actions {
           case 63: // seleccion_multiple ::= WHEN LPAREN error RPAREN LBRACE lista_casos RBRACE 
             {
               Object RESULT =null;
-		 System.err.println("Error sintactico en expresion de seleccion multiple 'when'"); 
+		 parser.imprimirDiagnostico("Expresion invalida en estructura 'when'.", "Una variable o expresion a evaluar.", "Verifica el contenido entre los parentesis del when.", "when (opcion) {"); 
               CUP$parser$result = parser.getSymbolFactory().newSymbol("seleccion_multiple",12, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-6)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;
@@ -1421,7 +1461,7 @@ class CUP$parser$actions {
           case 71: // ciclo_mientras ::= WHILE LPAREN condicion error bloque 
             {
               Object RESULT =null;
-		 System.err.println("Error sintactico: se esperaba ')' en la condicion del ciclo"); 
+		 parser.imprimirDiagnostico("Falta el parentesis de cierre en el ciclo 'while'.", "Un parentesis de cierre ')'.", "Cierra los parentesis de la condicion.", "while (x < 10) {"); 
               CUP$parser$result = parser.getSymbolFactory().newSymbol("ciclo_mientras",16, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-4)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;
@@ -1439,7 +1479,7 @@ class CUP$parser$actions {
           case 73: // ciclo_hacer_mientras ::= DO bloque WHILE LPAREN error RPAREN SEMICOLON 
             {
               Object RESULT =null;
-		 System.err.println("Error sintactico en la condicion de 'do-while'"); 
+		 parser.imprimirDiagnostico("Condicion invalida en el ciclo 'do-while'.", "Una expresion booleana.", "Revisa la condicion dentro de los parentesis.", "while (x < 10);"); 
               CUP$parser$result = parser.getSymbolFactory().newSymbol("ciclo_hacer_mientras",17, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-6)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;
@@ -1457,7 +1497,7 @@ class CUP$parser$actions {
           case 75: // ciclo_para ::= FOR LPAREN IDENTIFIER RPAREN bloque 
             {
               Object RESULT =null;
-		 System.err.println("Error sintactico: se esperaba la seccion de actualizacion/rango del ciclo 'for'"); 
+		 parser.imprimirDiagnostico("Se esperaba la seccion de actualizacion o rango en el ciclo 'for'.", "La palabra reservada 'in' seguida de un rango.", "Agrega la palabra 'in' y el rango a iterar.", "for (i in 1..10) {"); 
               CUP$parser$result = parser.getSymbolFactory().newSymbol("ciclo_para",18, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-4)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;
@@ -1718,7 +1758,7 @@ class CUP$parser$actions {
           case 104: // lectura ::= LEER LPAREN error RPAREN SEMICOLON 
             {
               Object RESULT =null;
-		 System.out.println("-> [Recuperacion] Error: Falta de coma o estructura invalida en lectura"); 
+		 parser.imprimirDiagnostico("Estructura invalida en sentencia de lectura.", "Una lista de variables a leer.", "Revisa los argumentos dentro de leer().", "leer(variable);"); 
               CUP$parser$result = parser.getSymbolFactory().newSymbol("lectura",21, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-4)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;
@@ -1745,7 +1785,7 @@ class CUP$parser$actions {
           case 107: // lista_identificadores ::= lista_identificadores COMMA error 
             {
               Object RESULT =null;
-		 System.out.println("-> [Recuperacion] Error: Coma duplicada en lista de lectura"); 
+		 parser.imprimirDiagnostico("Coma duplicada o elemento faltante en lista de lectura.", "Un identificador valido.", "Elimina la coma sobrante o agrega el identificador.", "leer(var1, var2);"); 
               CUP$parser$result = parser.getSymbolFactory().newSymbol("lista_identificadores",29, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-2)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;
@@ -1763,7 +1803,7 @@ class CUP$parser$actions {
           case 109: // escritura ::= ESCRIBIR LPAREN lista_elementos error SEMICOLON 
             {
               Object RESULT =null;
-		 System.out.println("-> [Recuperacion] Error: Falta de ')' en la escritura"); 
+		 parser.imprimirDiagnostico("No se encontro el parentesis de cierre en la escritura.", "Un parentesis ')'.", "Agrega el parentesis de cierre antes del punto y coma.", "escribir(\"Hola\");"); 
               CUP$parser$result = parser.getSymbolFactory().newSymbol("escritura",22, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-4)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;
@@ -1772,7 +1812,7 @@ class CUP$parser$actions {
           case 110: // escritura ::= ESCRIBIR error SEMICOLON 
             {
               Object RESULT =null;
-		 System.out.println("-> [Recuperacion] Error: Elemento faltante o coma sobrante en escritura"); 
+		 parser.imprimirDiagnostico("Estructura invalida en sentencia de escritura.", "Parentesis y contenido a escribir.", "Verifica la sintaxis de la instruccion escribir.", "escribir(\"Hola\");"); 
               CUP$parser$result = parser.getSymbolFactory().newSymbol("escritura",22, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-2)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;
@@ -1862,7 +1902,7 @@ class CUP$parser$actions {
           case 117: // asignacion ::= error EQ expresion SEMICOLON 
             {
               Object RESULT =null;
-		 System.out.println("-> [Recuperacion] Error: Identificador faltante en la asignacion"); 
+		 parser.imprimirDiagnostico("Identificador faltante en la asignacion.", "El nombre de una variable.", "Coloca el nombre de la variable antes del signo '='.", "total = 10;"); 
               CUP$parser$result = parser.getSymbolFactory().newSymbol("asignacion",23, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-3)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;
@@ -1871,7 +1911,7 @@ class CUP$parser$actions {
           case 118: // asignacion ::= IDENTIFIER EQ error SEMICOLON 
             {
               Object RESULT =null;
-		 System.out.println("-> [Recuperacion] Error: Expresion aritmetica o logica incompleta"); 
+		 parser.imprimirDiagnostico("Se esperaba una expresion despues del operador de asignacion.", "Un valor, variable o expresion matematica compatible.", "Proporciona un valor despues del '='.", "total = 10;"); 
               CUP$parser$result = parser.getSymbolFactory().newSymbol("asignacion",23, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-3)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;
@@ -1898,7 +1938,7 @@ class CUP$parser$actions {
           case 121: // retorno ::= RETURN error SEMICOLON 
             {
               Object RESULT =null;
-		 System.out.println("-> [Recuperacion] Error sintactico: se esperaba una expresion despues de 'return'"); 
+		 parser.imprimirDiagnostico("Expresion invalida en sentencia return.", "Un valor o variable a retornar.", "Verifica lo que estas intentando retornar.", "return a + b;"); 
               CUP$parser$result = parser.getSymbolFactory().newSymbol("retorno",24, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-2)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;
@@ -1925,7 +1965,7 @@ class CUP$parser$actions {
           case 124: // llamada_metodo ::= IDENTIFIER LPAREN error RPAREN 
             {
               Object RESULT =null;
-		 System.out.println("-> [Recuperacion] Error sintactico en los argumentos de la llamada"); 
+		 parser.imprimirDiagnostico("Estructura incompleta o invalida en los argumentos de la llamada.", "Una lista de argumentos validos separados por comas.", "Verifica los valores que le pasas al metodo.", "sumar(a, b);"); 
               CUP$parser$result = parser.getSymbolFactory().newSymbol("llamada_metodo",33, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-3)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;
@@ -1952,7 +1992,7 @@ class CUP$parser$actions {
           case 127: // lista_argumentos ::= lista_argumentos COMMA error 
             {
               Object RESULT =null;
-		 System.out.println("-> [Recuperacion] Error sintactico: se esperaba un argumento despues de ','"); 
+		 parser.imprimirDiagnostico("Se encontro una coma adicional o un argumento vacio al final.", "Un valor o expresion despues de la coma.", "Elimina la coma adicional o proporciona el argumento faltante.", "sumar(a, b)"); 
               CUP$parser$result = parser.getSymbolFactory().newSymbol("lista_argumentos",34, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-2)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;
@@ -1961,7 +2001,7 @@ class CUP$parser$actions {
           case 128: // lista_argumentos ::= error COMMA expresion 
             {
               Object RESULT =null;
-		 System.out.println("-> [Recuperacion] Error sintactico: argumento invalido o faltante antes de ','"); 
+		 parser.imprimirDiagnostico("Se esperaba una expresion antes de la coma.", "Un valor o argumento valido.", "Proporciona el argumento faltante o elimina la coma si no es necesaria.", "sumar(a, b)"); 
               CUP$parser$result = parser.getSymbolFactory().newSymbol("lista_argumentos",34, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-2)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }
           return CUP$parser$result;
