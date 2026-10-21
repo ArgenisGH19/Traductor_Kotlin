@@ -119,4 +119,16 @@ public class TablaSimbolos {
         System.out.println("========================================================================================================================");
         System.out.println("Total de simbolos registrados: " + tabla.size());
     }
+    
+    // --- OBTENER SÍMBOLO (Para análisis semántico) Actividad 10---
+    public Simbolo obtenerSimbolo(String id) {
+        // Busca desde el ámbito más profundo (el último insertado) hacia el global
+        for (int i = tabla.size() - 1; i >= 0; i--) {
+            Simbolo s = tabla.get(i);
+            if (s.getId().equals(id)) {
+                return s;
+            }
+        }
+        return null; // Retorna null si no está declarada
+    }
 }

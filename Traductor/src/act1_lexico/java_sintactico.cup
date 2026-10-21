@@ -58,6 +58,59 @@ parser code {:
         System.err.println("Error recuperable. El analisis continuara.");
         System.err.println("========================================================\n");
     }
+// --- LÓGICA DE ANÁLISIS SEMÁNTICO Y TIPOS ---
+    public String validarOperacionAritmetica(String tipo1, String tipo2, String operador, int linea, int columna) {
+        if (tipo1.equals("error") || tipo2.equals("error")) return "error";
+
+        if (operador.equals("+") && (tipo1.equals("String") || tipo2.equals("String"))) {
+            return "String"; // Concatenación permitida
+        }
+
+        if ((tipo1.equals("int") || tipo1.equals("float") || tipo1.equals("double")) && 
+            (tipo2.equals("int") || tipo2.equals("float") || tipo2.equals("double"))) {
+            
+            // Promoción de tipos
+            if (tipo1.equals("double") || tipo2.equals("double")) return "double";
+            if (tipo1.equals("float") || tipo2.equals("float")) return "float";
+            return "int";
+        }
+        
+        ManejoErrores.agregarSemantico("El operador aritmético '" + operador + "' no es aplicable a los tipos '" + tipo1 + "' y '" + tipo2 + "'.", linea, columna);
+        return "error";
+    }
+
+    public String validarOperacionLogicaRelacional(String tipo1, String tipo2, String operador, int linea, int columna) {
+        if (tipo1.equals("error") || tipo2.equals("error")) return "error";
+
+        boolean esRelacional = operador.matches("<|>|<=|>=|==|!=");
+        boolean esLogico = operador.matches("&&|\\|\\|");
+
+        if (esRelacional) {
+            if ((tipo1.equals("int") || tipo1.equals("float") || tipo1.equals("double")) && 
+                (tipo2.equals("int") || tipo2.equals("float") || tipo2.equals("double"))) {
+                return "boolean";
+            }
+            if ((operador.equals("==") || operador.equals("!=")) && tipo1.equals(tipo2)) {
+                return "boolean";
+            }
+            ManejoErrores.agregarSemantico("No se pueden comparar los tipos '" + tipo1 + "' y '" + tipo2 + "' con el operador '" + operador + "'.", linea, columna);
+        } else if (esLogico) {
+            if (tipo1.equals("boolean") && tipo2.equals("boolean")) {
+                return "boolean";
+            }
+            ManejoErrores.agregarSemantico("El operador lógico '" + operador + "' requiere operandos 'boolean', se encontró '" + tipo1 + "' y '" + tipo2 + "'.", linea, columna);
+        }
+        return "error";
+    }
+
+    public boolean sonTiposCompatibles(String tipoDestino, String tipoValor) {
+        if (tipoValor.equals("error")) return true; // Ignorar en cascada
+        if (tipoDestino.equals(tipoValor)) return true;
+        if (tipoDestino.equals("float") && tipoValor.equals("int")) return true; // int cabe en float
+        if (tipoDestino.equals("double") && (tipoValor.equals("int") || tipoValor.equals("float"))) return true;
+        if (tipoDestino.equals("String")) return true; // Asumimos que todo se puede hacer string
+        return false;
+    }
 :};
 
 // --- DECLARACIÓN DE TERMINALES ---
@@ -74,9 +127,11 @@ non terminal programa, estructura_paquete, lista_importaciones, importacion, rut
 non terminal lista_metodos, metodo, cuerpo_metodo, lista_sentencias, sentencia, bloque;
 non terminal seleccion, seleccion_multiple, lista_casos, caso, defecto;
 non terminal ciclo_mientras, ciclo_hacer_mientras, ciclo_para;
-non terminal condicion, expresion, lectura, escritura, asignacion, retorno;
+non terminal lectura, escritura, asignacion, retorno;
+non terminal lista_identificadores, lista_elementos, rango_para;
+non terminal String expresion, condicion, elemento;
 non terminal parametros_optativos, lista_parametros, parametro, tipo_retorno_optativo;
-non terminal lista_identificadores, lista_elementos, elemento, rango_para;
+
 
 // Agregados de la Actividad 8
 non terminal llamada_metodo, lista_argumentos;
@@ -286,14 +341,109 @@ ciclo_para ::= FOR LPAREN IDENTIFIER IN rango_para RPAREN bloque
              ;
 
 rango_para ::= expresion RANGE expresion ;
-condicion ::= expresion {: System.out.println("Regla reconocida: condicion"); :} ;
 
-// --- 3. EXPRESIONES ---
-expresion ::= expresion PLUS expresion | expresion MINUS expresion | expresion MULT expresion | expresion DIV expresion | expresion MOD expresion
-            | expresion EQEQ expresion | expresion NEQ expresion | expresion LT expresion | expresion LE expresion | expresion GT expresion | expresion GE expresion
-            | expresion AND expresion | expresion OR expresion | NOT expresion | LPAREN expresion RPAREN
-            | IDENTIFIER | INT_LITERAL | FLOAT_LITERAL | DOUBLE_LITERAL | CHAR_LITERAL | STRING_LITERAL | TRUE | FALSE | NULL 
-            | llamada_metodo {: System.out.println("Regla reconocida: llamada utilizada dentro de expresion"); :} ;
+// --- EXPRESIONES CON VERIFICACIÓN DE TIPOS ---
+expresion ::= expresion:e1 PLUS expresion:e2 
+            {: RESULT = parser.validarOperacionAritmetica(e1, e2, "+", e1left, e1right); :}
+            | expresion:e1 MINUS expresion:e2 
+            {: RESULT = parser.validarOperacionAritmetica(e1, e2, "-", e1left, e1right); :}
+            | expresion:e1 MULT expresion:e2 
+            {: RESULT = parser.validarOperacionAritmetica(e1, e2, "*", e1left, e1right); :}
+            | expresion:e1 DIV expresion:e2 
+            {: RESULT = parser.validarOperacionAritmetica(e1, e2, "/", e1left, e1right); :}
+            | expresion:e1 MOD expresion:e2 
+            {: RESULT = parser.validarOperacionAritmetica(e1, e2, "%", e1left, e1right); :}
+            | expresion:e1 EQEQ expresion:e2 
+            {: RESULT = parser.validarOperacionLogicaRelacional(e1, e2, "==", e1left, e1right); :}
+            | expresion:e1 NEQ expresion:e2 
+            {: RESULT = parser.validarOperacionLogicaRelacional(e1, e2, "!=", e1left, e1right); :}
+            | expresion:e1 LT expresion:e2 
+            {: RESULT = parser.validarOperacionLogicaRelacional(e1, e2, "<", e1left, e1right); :}
+            | expresion:e1 LE expresion:e2 
+            {: RESULT = parser.validarOperacionLogicaRelacional(e1, e2, "<=", e1left, e1right); :}
+            | expresion:e1 GT expresion:e2 
+            {: RESULT = parser.validarOperacionLogicaRelacional(e1, e2, ">", e1left, e1right); :}
+            | expresion:e1 GE expresion:e2 
+            {: RESULT = parser.validarOperacionLogicaRelacional(e1, e2, ">=", e1left, e1right); :}
+            | expresion:e1 AND expresion:e2 
+            {: RESULT = parser.validarOperacionLogicaRelacional(e1, e2, "&&", e1left, e1right); :}
+            | expresion:e1 OR expresion:e2 
+            {: RESULT = parser.validarOperacionLogicaRelacional(e1, e2, "||", e1left, e1right); :}
+            | NOT expresion:e1 
+            {: 
+                if(!e1.equals("boolean") && !e1.equals("error")) {
+                    ManejoErrores.agregarSemantico("El operador '!' requiere un operando 'boolean'.", e1left, e1right);
+                }
+                RESULT = "boolean"; 
+            :}
+            | LPAREN expresion:e1 RPAREN 
+            {: RESULT = e1; :}
+            | IDENTIFIER:id 
+            {: 
+                Simbolo s = parser.tablaSimbolos.obtenerSimbolo(id);
+                if (s == null) {
+                    ManejoErrores.agregarSemantico("El identificador '" + id + "' no ha sido declarado en este ambito.", idleft, idright);
+                    RESULT = "error";
+                } else {
+                    RESULT = s.getTipoDato();
+                }
+            :}
+            | INT_LITERAL {: RESULT = "int"; :}
+            | FLOAT_LITERAL {: RESULT = "float"; :}
+            | DOUBLE_LITERAL {: RESULT = "double"; :}
+            | CHAR_LITERAL {: RESULT = "char"; :}
+            | STRING_LITERAL {: RESULT = "String"; :}
+            | TRUE {: RESULT = "boolean"; :}
+            | FALSE {: RESULT = "boolean"; :}
+            | NULL {: RESULT = "null"; :}
+            | llamada_metodo 
+            {: RESULT = "void"; /* Por ahora asume void, o ajusta si tus métodos retornan tipo */ :}
+            ;
+
+condicion ::= expresion:e 
+            {: 
+                if(!e.equals("boolean") && !e.equals("error")) {
+                   ManejoErrores.agregarSemantico("La expresión de la condición debe ser de tipo 'boolean', se encontró '" + e + "'.", eleft, eright);
+                }
+                RESULT = e;
+            :} ;
+
+elemento ::= expresion:e {: RESULT = e; :};
+
+// --- ASIGNACIÓN CON VERIFICACIÓN SEMÁNTICA ---
+asignacion ::= IDENTIFIER:id EQ expresion:exp SEMICOLON 
+             {: 
+                 Simbolo s = parser.tablaSimbolos.obtenerSimbolo(id);
+                 if (s == null) {
+                     ManejoErrores.agregarSemantico("El identificador '" + id + "' no ha sido declarado.", idleft, idright);
+                 } else {
+                     if (s.getCategoria().equals("CONSTANTE")) {
+                         ManejoErrores.agregarSemantico("No se puede reasignar un valor a la constante '" + id + "'.", idleft, idright);
+                     } else if (!parser.sonTiposCompatibles(s.getTipoDato(), exp)) {
+                         ManejoErrores.agregarSemantico("Incompatibilidad de tipos: No se puede asignar '" + exp + "' a '" + id + "' de tipo '" + s.getTipoDato() + "'.", idleft, idright);
+                     }
+                 }
+             :}
+             | VAR IDENTIFIER:id COLON tipo_dato:tipo EQ expresion:exp SEMICOLON 
+             {: 
+                 if (!parser.sonTiposCompatibles(tipo, exp)) {
+                     ManejoErrores.agregarSemantico("Incompatibilidad de tipos al inicializar la variable '" + id + "'. Se esperaba '" + tipo + "' pero se recibió '" + exp + "'.", idleft, idright);
+                 }
+                 parser.tablaSimbolos.agregarSimbolo(id, "VARIABLE", tipo, "Asignado", idleft, idright); 
+             :}
+             | VAL IDENTIFIER:id COLON tipo_dato:tipo EQ expresion:exp SEMICOLON 
+             {: 
+                 if (!parser.sonTiposCompatibles(tipo, exp)) {
+                     ManejoErrores.agregarSemantico("Incompatibilidad de tipos al inicializar la constante '" + id + "'. Se esperaba '" + tipo + "' pero se recibió '" + exp + "'.", idleft, idright);
+                 }
+                 parser.tablaSimbolos.agregarSimbolo(id, "CONSTANTE", tipo, "Asignado", idleft, idright); 
+             :}
+             | error EQ expresion SEMICOLON 
+             {: parser.imprimirDiagnostico("Identificador faltante en la asignacion.", "El nombre de una variable.", "Coloca el nombre de la variable antes del signo '='.", "total = 10;"); :}
+             | IDENTIFIER EQ error SEMICOLON 
+             {: parser.imprimirDiagnostico("Se esperaba una expresion despues del operador de asignacion.", "Un valor, variable o expresion matematica compatible.", "Proporciona un valor despues del '='.", "total = 10;"); :}
+             ;
+
 
 // --- OTRAS SENTENCIAS ---
 lectura ::= LEER LPAREN lista_identificadores RPAREN SEMICOLON 
@@ -317,32 +467,6 @@ escritura ::= ESCRIBIR LPAREN lista_elementos RPAREN SEMICOLON
             ;
 
 lista_elementos ::= elemento | lista_elementos COMMA elemento ;
-elemento ::= expresion ;
-
-// --- REGISTRO SEMÁNTICO DE VARIABLES Y CONSTANTES ---
-asignacion ::= IDENTIFIER:id EQ expresion SEMICOLON 
-             {: 
-                 if(!parser.tablaSimbolos.existeSimbolo(id)) {
-                     System.err.println("Error semantico en linea " + idleft + ", columna " + idright + 
-                                        ": El identificador '" + id + "' NO ha sido declarado.");
-                 }
-                 System.out.println("Regla reconocida: asignacion con expresion"); 
-             :}
-             | VAR IDENTIFIER:id COLON tipo_dato:tipo EQ expresion SEMICOLON 
-             {: 
-                 parser.tablaSimbolos.agregarSimbolo(id, "VARIABLE", tipo, "Asignado", idleft, idright); 
-                 System.out.println("Regla reconocida: declaracion_asignacion"); 
-             :}
-             | VAL IDENTIFIER:id COLON tipo_dato:tipo EQ expresion SEMICOLON 
-             {: 
-                 parser.tablaSimbolos.agregarSimbolo(id, "CONSTANTE", tipo, "Asignado", idleft, idright); 
-                 System.out.println("Regla reconocida: declaracion_constante"); 
-             :}
-             | error EQ expresion SEMICOLON 
-             {: parser.imprimirDiagnostico("Identificador faltante en la asignacion.", "El nombre de una variable.", "Coloca el nombre de la variable antes del signo '='.", "total = 10;"); :}
-             | IDENTIFIER EQ error SEMICOLON 
-             {: parser.imprimirDiagnostico("Se esperaba una expresion despues del operador de asignacion.", "Un valor, variable o expresion matematica compatible.", "Proporciona un valor despues del '='.", "total = 10;"); :}
-             ;
 
 retorno ::= RETURN expresion SEMICOLON 
           {: System.out.println("Regla reconocida: retorno con expresion"); :}

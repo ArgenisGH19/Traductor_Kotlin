@@ -1,0 +1,10 @@
+
+class Principal {
+    fun main() {
+        val PI: double = 3.1416;
+        var edad: int = 20;
+
+        PI = 3.14; // Debería marcar error: no se puede reasignar constante
+        edad = "Veinte"; // Debería marcar error: incompatibilidad de tipos
+    }
+}
