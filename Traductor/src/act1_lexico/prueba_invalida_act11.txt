@@ -1,0 +1,46 @@
+package com.errores;
+
+class MiClaseErrores {
+
+    fun sumar(a: int, b: int): int {
+        // ERROR SEMANTICO: Retorna String pero prometio int
+        return "Hola"; 
+    }
+    
+    fun verificar(): boolean {
+        // ERROR SEMANTICO: Retorna int pero prometio boolean
+        return 100; 
+    }
+
+    fun proceso() {
+        var contador: int = 0;
+        var texto: String = "Prueba";
+        
+        // ERROR SEMANTICO: 'contador' es int, pero el 'if' exige un boolean
+        if (contador) { 
+            escribir("Esto marcara error");
+        }
+        
+        // ERROR SEMANTICO: 'texto' es String, el 'while' exige boolean
+        while (texto) {
+            escribir("Ciclo infinito");
+        }
+        
+        // ERROR SEMANTICO: break usado fuera de un ciclo
+        if (contador == 0) {
+            break;
+        }
+        
+        // ERROR SEMANTICO: El metodo 'restar' no existe
+        restar(10, 5);
+        
+        // ERROR SEMANTICO: sumar requiere 2 argumentos, le mandas 1
+        sumar(10);
+        
+        // ERROR SEMANTICO: el primer argumento de sumar debe ser int, le mandas String
+        sumar("Hola", 20);
+        
+        // ERROR SEMANTICO: continue usado fuera de un ciclo
+        continue;
+    }
+}

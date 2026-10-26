@@ -1,6 +1,8 @@
 package act1_lexico;
 
 import java_cup.runtime.*;
+import java.util.List;
+import java.util.ArrayList;
 
 parser code {:
     // ¡Nuestra memoria semántica intacta!
@@ -58,24 +60,23 @@ parser code {:
         System.err.println("Error recuperable. El analisis continuara.");
         System.err.println("========================================================\n");
     }
-// --- LÓGICA DE ANÁLISIS SEMÁNTICO Y TIPOS ---
+
+    // --- LÓGICA DE ANÁLISIS SEMÁNTICO Y TIPOS (Actividad 10 intacta) ---
     public String validarOperacionAritmetica(String tipo1, String tipo2, String operador, int linea, int columna) {
         if (tipo1.equals("error") || tipo2.equals("error")) return "error";
 
         if (operador.equals("+") && (tipo1.equals("String") || tipo2.equals("String"))) {
-            return "String"; // Concatenación permitida
+            return "String"; 
         }
 
         if ((tipo1.equals("int") || tipo1.equals("float") || tipo1.equals("double")) && 
             (tipo2.equals("int") || tipo2.equals("float") || tipo2.equals("double"))) {
-            
-            // Promoción de tipos
             if (tipo1.equals("double") || tipo2.equals("double")) return "double";
             if (tipo1.equals("float") || tipo2.equals("float")) return "float";
             return "int";
         }
         
-        ManejoErrores.agregarSemantico("El operador aritmético '" + operador + "' no es aplicable a los tipos '" + tipo1 + "' y '" + tipo2 + "'.", linea, columna);
+        System.err.println("Error semantico en linea " + linea + ", columna " + columna + ": El operador aritmetico '" + operador + "' no es aplicable a los tipos '" + tipo1 + "' y '" + tipo2 + "'.");
         return "error";
     }
 
@@ -93,23 +94,63 @@ parser code {:
             if ((operador.equals("==") || operador.equals("!=")) && tipo1.equals(tipo2)) {
                 return "boolean";
             }
-            ManejoErrores.agregarSemantico("No se pueden comparar los tipos '" + tipo1 + "' y '" + tipo2 + "' con el operador '" + operador + "'.", linea, columna);
+            System.err.println("Error semantico en linea " + linea + ", columna " + columna + ": No se pueden comparar los tipos '" + tipo1 + "' y '" + tipo2 + "' con el operador '" + operador + "'.");
         } else if (esLogico) {
             if (tipo1.equals("boolean") && tipo2.equals("boolean")) {
                 return "boolean";
             }
-            ManejoErrores.agregarSemantico("El operador lógico '" + operador + "' requiere operandos 'boolean', se encontró '" + tipo1 + "' y '" + tipo2 + "'.", linea, columna);
+            System.err.println("Error semantico en linea " + linea + ", columna " + columna + ": El operador logico '" + operador + "' requiere operandos 'boolean', se encontro '" + tipo1 + "' y '" + tipo2 + "'.");
         }
         return "error";
     }
 
     public boolean sonTiposCompatibles(String tipoDestino, String tipoValor) {
-        if (tipoValor.equals("error")) return true; // Ignorar en cascada
+        if (tipoValor.equals("error")) return true; 
         if (tipoDestino.equals(tipoValor)) return true;
-        if (tipoDestino.equals("float") && tipoValor.equals("int")) return true; // int cabe en float
+        if (tipoDestino.equals("float") && tipoValor.equals("int")) return true; 
         if (tipoDestino.equals("double") && (tipoValor.equals("int") || tipoValor.equals("float"))) return true;
-        if (tipoDestino.equals("String")) return true; // Asumimos que todo se puede hacer string
+        if (tipoDestino.equals("String")) return true; 
         return false;
+    }
+
+    // --- NUEVA LÓGICA ACTIVIDAD 11: MÉTODOS, RETORNOS Y CICLOS ---
+
+    public String validarLlamadaMetodo(String id, List<String> argsTipos, int linea, int columna) {
+        Simbolo s = tablaSimbolos.obtenerSimbolo(id);
+        if (s == null) {
+            System.err.println("Error semantico en linea " + linea + ", columna " + columna + ": El metodo '" + id + "' no esta declarado.");
+            return "error";
+        }
+        if (!s.getCategoria().equals("METODO")) {
+            System.err.println("Error semantico en linea " + linea + ", columna " + columna + ": El identificador '" + id + "' no es un metodo.");
+            return "error";
+        }
+        
+        List<String> params = s.getTiposParametros();
+        if (params.size() != argsTipos.size()) {
+            System.err.println("Error semantico en linea " + linea + ", columna " + columna + ": El metodo '" + id + "' requiere " + params.size() + " argumentos, pero se proporcionaron " + argsTipos.size() + ".");
+            return "error";
+        }
+        
+        for (int i = 0; i < params.size(); i++) {
+            if (!sonTiposCompatibles(params.get(i), argsTipos.get(i))) {
+                System.err.println("Error semantico en linea " + linea + ", columna " + columna + ": El argumento " + (i+1) + " del metodo '" + id + "' es de tipo '" + argsTipos.get(i) + "'; se esperaba un tipo compatible con '" + params.get(i) + "'.");
+            }
+        }
+        return s.getTipoDato(); // Devuelve el tipo de retorno de la funcion
+    }
+
+    public void validarRetorno(String tipoRetornado, int linea, int columna) {
+        String tipoEsperado = tablaSimbolos.getTipoRetornoActual();
+        if (!sonTiposCompatibles(tipoEsperado, tipoRetornado)) {
+            System.err.println("Error semantico en linea " + linea + ", columna " + columna + ": El metodo declara un retorno de tipo '" + tipoEsperado + "', pero la expresion retornada es de tipo '" + tipoRetornado + "'.");
+        }
+    }
+
+    public void validarBreakContinue(String instruccion, int linea, int columna) {
+        if (!tablaSimbolos.estoyEnUnCiclo()) {
+            System.err.println("Error semantico en linea " + linea + ", columna " + columna + ": La instruccion '" + instruccion + "' no se encuentra dentro de un ciclo (for, while, do-while).");
+        }
     }
 :};
 
@@ -119,24 +160,20 @@ terminal String PUBLIC, PRIVATE, PROTECTED, INTERNAL, FINAL, RETURN, NULL, TRUE,
 terminal String PLUS, MINUS, MULT, DIV, MOD, EQ, EQEQ, NEQ, LT, LE, GT, GE, AND, OR, NOT;
 terminal String ARROW, RANGE, LPAREN, RPAREN, LBRACE, RBRACE, LBRACK, RBRACK, COMMA, SEMICOLON, DOT, COLON;
 terminal String INT, FLOAT, DOUBLE, CHAR, BOOLEAN, STRING;
-terminal String LEER, ESCRIBIR;
+terminal String LEER, ESCRIBIR, BREAK, CONTINUE;
 terminal String IDENTIFIER, INT_LITERAL, FLOAT_LITERAL, DOUBLE_LITERAL, CHAR_LITERAL, STRING_LITERAL, ERROR;
 
 // --- DECLARACIÓN DE NO TERMINALES ---
 non terminal programa, estructura_paquete, lista_importaciones, importacion, ruta;
 non terminal lista_metodos, metodo, cuerpo_metodo, lista_sentencias, sentencia, bloque;
 non terminal seleccion, seleccion_multiple, lista_casos, caso, defecto;
-non terminal ciclo_mientras, ciclo_hacer_mientras, ciclo_para;
+non terminal ciclo_mientras, ciclo_hacer_mientras, ciclo_para, marcador_ciclo;
 non terminal lectura, escritura, asignacion, retorno;
 non terminal lista_identificadores, lista_elementos, rango_para;
-non terminal String expresion, condicion, elemento;
+non terminal String expresion, condicion, elemento, llamada_metodo;
 non terminal parametros_optativos, lista_parametros, parametro, tipo_retorno_optativo;
+non terminal List<String> lista_argumentos;
 
-
-// Agregados de la Actividad 8
-non terminal llamada_metodo, lista_argumentos;
-
-// Agregados de la Tabla de Símbolos
 non terminal clase_principal, marcador_clase, marcador_metodo;
 non terminal String tipo_dato;
 
@@ -168,9 +205,7 @@ estructura_paquete ::= PACKAGE ruta SEMICOLON
                      {: parser.imprimirDiagnostico("Estructura de paquete malformada.", "Una ruta de paquete valida (ej. com.mi.paquete).", "Asegurate de especificar el nombre del paquete correctamente y cerrar con ';'.", "package com.mi.paquete;"); :}
                      ;
 
-lista_importaciones ::= lista_importaciones importacion
-                      | importacion
-                      ;
+lista_importaciones ::= lista_importaciones importacion | importacion ;
 
 importacion ::= IMPORT ruta SEMICOLON 
               {: System.out.println("Regla reconocida: importacion"); :}
@@ -178,9 +213,7 @@ importacion ::= IMPORT ruta SEMICOLON
               {: parser.imprimirDiagnostico("Declaracion de importacion invalida.", "Una ruta de paquete o clase a importar.", "Verifica la sintaxis de la importacion.", "import java.util.*;"); :}
               ;
 
-ruta ::= IDENTIFIER
-       | ruta DOT IDENTIFIER
-       ;
+ruta ::= IDENTIFIER | ruta DOT IDENTIFIER ;
 
 // --- REGISTRO SEMÁNTICO DE CLASES ---
 marcador_clase ::= CLASS IDENTIFIER:id
@@ -204,15 +237,14 @@ clase_principal ::= marcador_clase LBRACE lista_metodos RBRACE
                   {: parser.imprimirDiagnostico("Error en la definicion de la clase principal.", "Un identificador valido para la clase seguido de llaves {}.", "Revisa el nombre de la clase y su estructura.", "class MiClase { ... }"); :}
                   ;
 
-lista_metodos ::= lista_metodos metodo
-                | metodo
-                ;
+lista_metodos ::= lista_metodos metodo | metodo ;
 
-// --- REGISTRO SEMÁNTICO DE MÉTODOS ---
+// --- REGISTRO SEMÁNTICO DE MÉTODOS Y RETORNOS ---
 marcador_metodo ::= FUN IDENTIFIER:id
                   {:
                      parser.tablaSimbolos.agregarSimbolo(id, "METODO", "void", "N/A", idleft, idright);
                      parser.tablaSimbolos.entrarAmbito(id);
+                     parser.tablaSimbolos.setTipoRetornoActual("void");
                   :}
                   ;
 
@@ -225,16 +257,19 @@ metodo ::= marcador_metodo LPAREN parametros_optativos RPAREN tipo_retorno_optat
          {: parser.imprimirDiagnostico("Falta la lista de parametros delimitada por parentesis en la declaracion del metodo.", "Parentesis () despues del identificador.", "Agrega () despues del nombre del metodo, incluso si no recibe parametros.", "fun iniciar() {"); :}
          ;
 
-tipo_retorno_optativo ::= COLON tipo_dato 
-                        {: System.out.println("Regla reconocida: metodo_con_retorno"); :}
+tipo_retorno_optativo ::= COLON tipo_dato:t 
+                        {: 
+                            parser.tablaSimbolos.setTipoRetornoActual(t);
+                            Simbolo s = parser.tablaSimbolos.obtenerSimbolo(parser.tablaSimbolos.getAmbitoActual());
+                            if(s != null) s.setTipoDato(t); // Usamos el nuevo setter de Simbolo
+                            System.out.println("Regla reconocida: metodo_con_retorno"); 
+                        :}
                         | /* vacio */ 
                         {: System.out.println("Regla reconocida: metodo_sin_retorno"); :}
                         ;
 
-parametros_optativos ::= lista_parametros 
-                       {: System.out.println("Regla reconocida: metodo_con_parametros"); :}
-                       | /* vacio */ 
-                       {: System.out.println("Regla reconocida: metodo_sin_parametros"); :}
+parametros_optativos ::= lista_parametros {: System.out.println("Regla reconocida: metodo_con_parametros"); :}
+                       | /* vacio */ {: System.out.println("Regla reconocida: metodo_sin_parametros"); :}
                        ;
 
 lista_parametros ::= parametro
@@ -247,6 +282,7 @@ lista_parametros ::= parametro
 parametro ::= IDENTIFIER:id COLON tipo_dato:tipo 
             {: 
                 parser.tablaSimbolos.agregarSimbolo(id, "VARIABLE", tipo, "N/A (Parametro)", idleft, idright); 
+                parser.tablaSimbolos.registrarParametroEnMetodoActual(tipo);
                 System.out.println("Regla reconocida: parametro valido"); 
             :}
             | error COLON tipo_dato 
@@ -264,55 +300,43 @@ tipo_dato ::= INT {: RESULT = "int"; :}
             | IDENTIFIER:id {: RESULT = id; :} 
             ;
 
-cuerpo_metodo ::= lista_sentencias 
-                {: System.out.println("Regla reconocida: cuerpo_metodo"); :}
-                | /* vacio */ 
-                {: System.out.println("Regla reconocida: cuerpo de metodo vacio"); :}
+cuerpo_metodo ::= lista_sentencias {: System.out.println("Regla reconocida: cuerpo_metodo"); :}
+                | /* vacio */ {: System.out.println("Regla reconocida: cuerpo de metodo vacio"); :}
                 ;
 
 // --- BLOQUES Y SENTENCIAS ---
-bloque ::= LBRACE lista_sentencias RBRACE 
-         {: System.out.println("Regla reconocida: bloque"); :}
-         | LBRACE RBRACE 
-         {: System.out.println("Regla reconocida: bloque_vacio"); :}
-         | LBRACE error RBRACE 
-         {: parser.imprimirDiagnostico("Error de sintaxis dentro del bloque de codigo.", "Instrucciones validas.", "Revisa las sentencias dentro de las llaves { }.", ""); :}
+bloque ::= LBRACE lista_sentencias RBRACE {: System.out.println("Regla reconocida: bloque"); :}
+         | LBRACE RBRACE {: System.out.println("Regla reconocida: bloque_vacio"); :}
+         | LBRACE error RBRACE {: parser.imprimirDiagnostico("Error de sintaxis dentro del bloque de codigo.", "Instrucciones validas.", "Revisa las sentencias dentro de las llaves { }.", ""); :}
          ;
 
-lista_sentencias ::= lista_sentencias sentencia
-                   | sentencia
-                   ;
+lista_sentencias ::= lista_sentencias sentencia | sentencia ;
 
-sentencia ::= seleccion
-            | seleccion_multiple
-            | ciclo_mientras
-            | ciclo_hacer_mientras
-            | ciclo_para
-            | lectura
-            | escritura
-            | asignacion
-            | retorno
-            | llamada_metodo SEMICOLON 
-            {: System.out.println("Regla reconocida: llamada utilizada como sentencia"); :}
-            | error SEMICOLON 
-            {: parser.imprimirDiagnostico("Instruccion no reconocida o malformada.", "Una sentencia valida.", "Verifica la estructura de la instruccion. Si es una llamada a metodo sin parametros, agregale '()'.", "iniciar();"); :}
+sentencia ::= seleccion | seleccion_multiple | ciclo_mientras | ciclo_hacer_mientras | ciclo_para
+            | lectura | escritura | asignacion | retorno
+            | llamada_metodo SEMICOLON {: System.out.println("Regla reconocida: llamada utilizada como sentencia"); :}
+            | BREAK:b SEMICOLON 
+            {: 
+               parser.validarBreakContinue("break", bleft, bright); 
+               System.out.println("Regla reconocida: instruccion break"); 
+            :}
+            | CONTINUE:c SEMICOLON 
+            {: 
+               parser.validarBreakContinue("continue", cleft, cright); 
+               System.out.println("Regla reconocida: instruccion continue"); 
+            :}
+            | error SEMICOLON {: parser.imprimirDiagnostico("Instruccion no reconocida o malformada.", "Una sentencia valida.", "Verifica la estructura de la instruccion.", "iniciar();"); :}
             ;
 
 // --- 1. ESTRUCTURAS SELECTIVAS ---
-seleccion ::= IF LPAREN condicion RPAREN bloque
-            {: System.out.println("Regla reconocida: seleccion_simple"); :}
-            | IF LPAREN condicion RPAREN bloque ELSE bloque
-            {: System.out.println("Regla reconocida: seleccion_doble"); :}
-            | IF error RPAREN bloque
-            {: parser.imprimirDiagnostico("Condicion malformada o falta de parentesis de apertura en 'if'.", "Un parentesis '(' seguido de una condicion.", "Agrega el parentesis de apertura para la condicion.", "if (x > 0) {"); :}
+seleccion ::= IF LPAREN condicion RPAREN bloque {: System.out.println("Regla reconocida: seleccion_simple"); :}
+            | IF LPAREN condicion RPAREN bloque ELSE bloque {: System.out.println("Regla reconocida: seleccion_doble"); :}
+            | IF error RPAREN bloque {: parser.imprimirDiagnostico("Condicion malformada o falta de parentesis de apertura en 'if'.", "Un parentesis '(' seguido de una condicion.", "Agrega el parentesis de apertura para la condicion.", "if (x > 0) {"); :}
             ;
 
-seleccion_multiple ::= WHEN LPAREN expresion RPAREN LBRACE lista_casos defecto RBRACE
-                     {: System.out.println("Regla reconocida: seleccion_multiple"); :}
-                     | WHEN LPAREN expresion RPAREN LBRACE lista_casos RBRACE
-                     {: System.out.println("Regla reconocida: seleccion_multiple"); :}
-                     | WHEN LPAREN error RPAREN LBRACE lista_casos RBRACE
-                     {: parser.imprimirDiagnostico("Expresion invalida en estructura 'when'.", "Una variable o expresion a evaluar.", "Verifica el contenido entre los parentesis del when.", "when (opcion) {"); :}
+seleccion_multiple ::= WHEN LPAREN expresion RPAREN LBRACE lista_casos defecto RBRACE {: System.out.println("Regla reconocida: seleccion_multiple"); :}
+                     | WHEN LPAREN expresion RPAREN LBRACE lista_casos RBRACE {: System.out.println("Regla reconocida: seleccion_multiple"); :}
+                     | WHEN LPAREN error RPAREN LBRACE lista_casos RBRACE {: parser.imprimirDiagnostico("Expresion invalida en estructura 'when'.", "Una variable o expresion a evaluar.", "Verifica el contenido entre los parentesis del when.", "when (opcion) {"); :}
                      ;
 
 lista_casos ::= lista_casos caso | caso ;
@@ -321,68 +345,56 @@ caso ::= expresion ARROW bloque {: System.out.println("Regla reconocida: caso");
 defecto ::= ELSE ARROW bloque {: System.out.println("Regla reconocida: defecto"); :} 
           | ELSE ARROW sentencia {: System.out.println("Regla reconocida: defecto"); :} ;
 
-// --- 2. ESTRUCTURAS ITERATIVAS ---
-ciclo_mientras ::= WHILE LPAREN condicion RPAREN bloque
-                 {: System.out.println("Regla reconocida: ciclo_mientras"); :}
+// --- 2. ESTRUCTURAS ITERATIVAS CON RADAR DE CICLOS ---
+marcador_ciclo ::= /* vacio */ {: parser.tablaSimbolos.entrarCiclo(); :} ;
+
+ciclo_mientras ::= WHILE LPAREN condicion RPAREN marcador_ciclo bloque
+                 {: parser.tablaSimbolos.salirCiclo(); System.out.println("Regla reconocida: ciclo_mientras"); :}
                  | WHILE LPAREN condicion error bloque
-                 {: parser.imprimirDiagnostico("Falta el parentesis de cierre en el ciclo 'while'.", "Un parentesis de cierre ')'.", "Cierra los parentesis de la condicion.", "while (x < 10) {"); :}
+                 {: parser.tablaSimbolos.salirCiclo(); parser.imprimirDiagnostico("Falta el parentesis de cierre en el ciclo 'while'.", "Un parentesis de cierre ')'.", "Cierra los parentesis de la condicion.", "while (x < 10) {"); :}
                  ;
 
-ciclo_hacer_mientras ::= DO bloque WHILE LPAREN condicion RPAREN SEMICOLON
-                       {: System.out.println("Regla reconocida: ciclo_hacer_mientras"); :}
-                       | DO bloque WHILE LPAREN error RPAREN SEMICOLON
-                       {: parser.imprimirDiagnostico("Condicion invalida en el ciclo 'do-while'.", "Una expresion booleana.", "Revisa la condicion dentro de los parentesis.", "while (x < 10);"); :}
+ciclo_hacer_mientras ::= DO marcador_ciclo bloque WHILE LPAREN condicion RPAREN SEMICOLON
+                       {: parser.tablaSimbolos.salirCiclo(); System.out.println("Regla reconocida: ciclo_hacer_mientras"); :}
+                       | DO marcador_ciclo bloque WHILE LPAREN error RPAREN SEMICOLON
+                       {: parser.tablaSimbolos.salirCiclo(); parser.imprimirDiagnostico("Condicion invalida en el ciclo 'do-while'.", "Una expresion booleana.", "Revisa la condicion dentro de los parentesis.", "while (x < 10);"); :}
                        ;
 
-ciclo_para ::= FOR LPAREN IDENTIFIER IN rango_para RPAREN bloque
-             {: System.out.println("Regla reconocida: ciclo_para"); :}
-             | FOR LPAREN IDENTIFIER RPAREN bloque
-             {: parser.imprimirDiagnostico("Se esperaba la seccion de actualizacion o rango en el ciclo 'for'.", "La palabra reservada 'in' seguida de un rango.", "Agrega la palabra 'in' y el rango a iterar.", "for (i in 1..10) {"); :}
+ciclo_para ::= FOR LPAREN IDENTIFIER IN rango_para RPAREN marcador_ciclo bloque
+             {: parser.tablaSimbolos.salirCiclo(); System.out.println("Regla reconocida: ciclo_para"); :}
+             | FOR LPAREN IDENTIFIER RPAREN marcador_ciclo bloque
+             {: parser.tablaSimbolos.salirCiclo(); parser.imprimirDiagnostico("Se esperaba la seccion de actualizacion o rango en el ciclo 'for'.", "La palabra reservada 'in' seguida de un rango.", "Agrega la palabra 'in' y el rango a iterar.", "for (i in 1..10) {"); :}
              ;
 
 rango_para ::= expresion RANGE expresion ;
 
 // --- EXPRESIONES CON VERIFICACIÓN DE TIPOS ---
-expresion ::= expresion:e1 PLUS expresion:e2 
-            {: RESULT = parser.validarOperacionAritmetica(e1, e2, "+", e1left, e1right); :}
-            | expresion:e1 MINUS expresion:e2 
-            {: RESULT = parser.validarOperacionAritmetica(e1, e2, "-", e1left, e1right); :}
-            | expresion:e1 MULT expresion:e2 
-            {: RESULT = parser.validarOperacionAritmetica(e1, e2, "*", e1left, e1right); :}
-            | expresion:e1 DIV expresion:e2 
-            {: RESULT = parser.validarOperacionAritmetica(e1, e2, "/", e1left, e1right); :}
-            | expresion:e1 MOD expresion:e2 
-            {: RESULT = parser.validarOperacionAritmetica(e1, e2, "%", e1left, e1right); :}
-            | expresion:e1 EQEQ expresion:e2 
-            {: RESULT = parser.validarOperacionLogicaRelacional(e1, e2, "==", e1left, e1right); :}
-            | expresion:e1 NEQ expresion:e2 
-            {: RESULT = parser.validarOperacionLogicaRelacional(e1, e2, "!=", e1left, e1right); :}
-            | expresion:e1 LT expresion:e2 
-            {: RESULT = parser.validarOperacionLogicaRelacional(e1, e2, "<", e1left, e1right); :}
-            | expresion:e1 LE expresion:e2 
-            {: RESULT = parser.validarOperacionLogicaRelacional(e1, e2, "<=", e1left, e1right); :}
-            | expresion:e1 GT expresion:e2 
-            {: RESULT = parser.validarOperacionLogicaRelacional(e1, e2, ">", e1left, e1right); :}
-            | expresion:e1 GE expresion:e2 
-            {: RESULT = parser.validarOperacionLogicaRelacional(e1, e2, ">=", e1left, e1right); :}
-            | expresion:e1 AND expresion:e2 
-            {: RESULT = parser.validarOperacionLogicaRelacional(e1, e2, "&&", e1left, e1right); :}
-            | expresion:e1 OR expresion:e2 
-            {: RESULT = parser.validarOperacionLogicaRelacional(e1, e2, "||", e1left, e1right); :}
+expresion ::= expresion:e1 PLUS expresion:e2 {: RESULT = parser.validarOperacionAritmetica(e1, e2, "+", e1left, e1right); :}
+            | expresion:e1 MINUS expresion:e2 {: RESULT = parser.validarOperacionAritmetica(e1, e2, "-", e1left, e1right); :}
+            | expresion:e1 MULT expresion:e2 {: RESULT = parser.validarOperacionAritmetica(e1, e2, "*", e1left, e1right); :}
+            | expresion:e1 DIV expresion:e2 {: RESULT = parser.validarOperacionAritmetica(e1, e2, "/", e1left, e1right); :}
+            | expresion:e1 MOD expresion:e2 {: RESULT = parser.validarOperacionAritmetica(e1, e2, "%", e1left, e1right); :}
+            | expresion:e1 EQEQ expresion:e2 {: RESULT = parser.validarOperacionLogicaRelacional(e1, e2, "==", e1left, e1right); :}
+            | expresion:e1 NEQ expresion:e2 {: RESULT = parser.validarOperacionLogicaRelacional(e1, e2, "!=", e1left, e1right); :}
+            | expresion:e1 LT expresion:e2 {: RESULT = parser.validarOperacionLogicaRelacional(e1, e2, "<", e1left, e1right); :}
+            | expresion:e1 LE expresion:e2 {: RESULT = parser.validarOperacionLogicaRelacional(e1, e2, "<=", e1left, e1right); :}
+            | expresion:e1 GT expresion:e2 {: RESULT = parser.validarOperacionLogicaRelacional(e1, e2, ">", e1left, e1right); :}
+            | expresion:e1 GE expresion:e2 {: RESULT = parser.validarOperacionLogicaRelacional(e1, e2, ">=", e1left, e1right); :}
+            | expresion:e1 AND expresion:e2 {: RESULT = parser.validarOperacionLogicaRelacional(e1, e2, "&&", e1left, e1right); :}
+            | expresion:e1 OR expresion:e2 {: RESULT = parser.validarOperacionLogicaRelacional(e1, e2, "||", e1left, e1right); :}
             | NOT expresion:e1 
             {: 
                 if(!e1.equals("boolean") && !e1.equals("error")) {
-                    ManejoErrores.agregarSemantico("El operador '!' requiere un operando 'boolean'.", e1left, e1right);
+                    System.err.println("Error semantico en linea " + e1left + ", columna " + e1right + ": El operador '!' requiere un operando 'boolean'.");
                 }
                 RESULT = "boolean"; 
             :}
-            | LPAREN expresion:e1 RPAREN 
-            {: RESULT = e1; :}
+            | LPAREN expresion:e1 RPAREN {: RESULT = e1; :}
             | IDENTIFIER:id 
             {: 
                 Simbolo s = parser.tablaSimbolos.obtenerSimbolo(id);
                 if (s == null) {
-                    ManejoErrores.agregarSemantico("El identificador '" + id + "' no ha sido declarado en este ambito.", idleft, idright);
+                    System.err.println("Error semantico en linea " + idleft + ", columna " + idright + ": El identificador '" + id + "' no ha sido declarado en este ambito.");
                     RESULT = "error";
                 } else {
                     RESULT = s.getTipoDato();
@@ -396,14 +408,13 @@ expresion ::= expresion:e1 PLUS expresion:e2
             | TRUE {: RESULT = "boolean"; :}
             | FALSE {: RESULT = "boolean"; :}
             | NULL {: RESULT = "null"; :}
-            | llamada_metodo 
-            {: RESULT = "void"; /* Por ahora asume void, o ajusta si tus métodos retornan tipo */ :}
+            | llamada_metodo:m {: RESULT = m; System.out.println("Regla reconocida: llamada utilizada dentro de expresion"); :}
             ;
 
 condicion ::= expresion:e 
             {: 
                 if(!e.equals("boolean") && !e.equals("error")) {
-                   ManejoErrores.agregarSemantico("La expresión de la condición debe ser de tipo 'boolean', se encontró '" + e + "'.", eleft, eright);
+                   System.err.println("Error semantico en linea " + eleft + ", columna " + eright + ": La expresion de la condicion debe ser de tipo 'boolean', se encontro '" + e + "'.");
                 }
                 RESULT = e;
             :} ;
@@ -415,28 +426,31 @@ asignacion ::= IDENTIFIER:id EQ expresion:exp SEMICOLON
              {: 
                  Simbolo s = parser.tablaSimbolos.obtenerSimbolo(id);
                  if (s == null) {
-                     ManejoErrores.agregarSemantico("El identificador '" + id + "' no ha sido declarado.", idleft, idright);
+                     System.err.println("Error semantico en linea " + idleft + ", columna " + idright + ": El identificador '" + id + "' no ha sido declarado.");
                  } else {
                      if (s.getCategoria().equals("CONSTANTE")) {
-                         ManejoErrores.agregarSemantico("No se puede reasignar un valor a la constante '" + id + "'.", idleft, idright);
+                         System.err.println("Error semantico en linea " + idleft + ", columna " + idright + ": No se puede reasignar un valor a la constante '" + id + "'.");
                      } else if (!parser.sonTiposCompatibles(s.getTipoDato(), exp)) {
-                         ManejoErrores.agregarSemantico("Incompatibilidad de tipos: No se puede asignar '" + exp + "' a '" + id + "' de tipo '" + s.getTipoDato() + "'.", idleft, idright);
+                         System.err.println("Error semantico en linea " + idleft + ", columna " + idright + ": Incompatibilidad de tipos: No se puede asignar '" + exp + "' a '" + id + "' de tipo '" + s.getTipoDato() + "'.");
                      }
                  }
+                 System.out.println("Regla reconocida: asignacion con expresion");
              :}
              | VAR IDENTIFIER:id COLON tipo_dato:tipo EQ expresion:exp SEMICOLON 
              {: 
                  if (!parser.sonTiposCompatibles(tipo, exp)) {
-                     ManejoErrores.agregarSemantico("Incompatibilidad de tipos al inicializar la variable '" + id + "'. Se esperaba '" + tipo + "' pero se recibió '" + exp + "'.", idleft, idright);
+                     System.err.println("Error semantico en linea " + idleft + ", columna " + idright + ": Incompatibilidad de tipos al inicializar la variable '" + id + "'. Se esperaba '" + tipo + "' pero se recibio '" + exp + "'.");
                  }
                  parser.tablaSimbolos.agregarSimbolo(id, "VARIABLE", tipo, "Asignado", idleft, idright); 
+                 System.out.println("Regla reconocida: declaracion_asignacion");
              :}
              | VAL IDENTIFIER:id COLON tipo_dato:tipo EQ expresion:exp SEMICOLON 
              {: 
                  if (!parser.sonTiposCompatibles(tipo, exp)) {
-                     ManejoErrores.agregarSemantico("Incompatibilidad de tipos al inicializar la constante '" + id + "'. Se esperaba '" + tipo + "' pero se recibió '" + exp + "'.", idleft, idright);
+                     System.err.println("Error semantico en linea " + idleft + ", columna " + idright + ": Incompatibilidad de tipos al inicializar la constante '" + id + "'. Se esperaba '" + tipo + "' pero se recibio '" + exp + "'.");
                  }
                  parser.tablaSimbolos.agregarSimbolo(id, "CONSTANTE", tipo, "Asignado", idleft, idright); 
+                 System.out.println("Regla reconocida: declaracion_constante");
              :}
              | error EQ expresion SEMICOLON 
              {: parser.imprimirDiagnostico("Identificador faltante en la asignacion.", "El nombre de una variable.", "Coloca el nombre de la variable antes del signo '='.", "total = 10;"); :}
@@ -444,52 +458,76 @@ asignacion ::= IDENTIFIER:id EQ expresion:exp SEMICOLON
              {: parser.imprimirDiagnostico("Se esperaba una expresion despues del operador de asignacion.", "Un valor, variable o expresion matematica compatible.", "Proporciona un valor despues del '='.", "total = 10;"); :}
              ;
 
-
 // --- OTRAS SENTENCIAS ---
-lectura ::= LEER LPAREN lista_identificadores RPAREN SEMICOLON 
-          {: System.out.println("Regla reconocida: sentencia de lectura"); :}
-          | LEER LPAREN error RPAREN SEMICOLON 
-          {: parser.imprimirDiagnostico("Estructura invalida en sentencia de lectura.", "Una lista de variables a leer.", "Revisa los argumentos dentro de leer().", "leer(variable);"); :}
+lectura ::= LEER LPAREN lista_identificadores RPAREN SEMICOLON {: System.out.println("Regla reconocida: sentencia de lectura"); :}
+          | LEER LPAREN error RPAREN SEMICOLON {: parser.imprimirDiagnostico("Estructura invalida en sentencia de lectura.", "Una lista de variables a leer.", "Revisa los argumentos dentro de leer().", "leer(variable);"); :}
           ;
 
 lista_identificadores ::= IDENTIFIER
                         | lista_identificadores COMMA IDENTIFIER
-                        | lista_identificadores COMMA error 
-                        {: parser.imprimirDiagnostico("Coma duplicada o elemento faltante en lista de lectura.", "Un identificador valido.", "Elimina la coma sobrante o agrega el identificador.", "leer(var1, var2);"); :}
+                        | lista_identificadores COMMA error {: parser.imprimirDiagnostico("Coma duplicada o elemento faltante en lista de lectura.", "Un identificador valido.", "Elimina la coma sobrante o agrega el identificador.", "leer(var1, var2);"); :}
                         ;
 
-escritura ::= ESCRIBIR LPAREN lista_elementos RPAREN SEMICOLON 
-            {: System.out.println("Regla reconocida: sentencia de escritura"); :}
-            | ESCRIBIR LPAREN lista_elementos error SEMICOLON 
-            {: parser.imprimirDiagnostico("No se encontro el parentesis de cierre en la escritura.", "Un parentesis ')'.", "Agrega el parentesis de cierre antes del punto y coma.", "escribir(\"Hola\");"); :}
-            | ESCRIBIR error SEMICOLON 
-            {: parser.imprimirDiagnostico("Estructura invalida en sentencia de escritura.", "Parentesis y contenido a escribir.", "Verifica la sintaxis de la instruccion escribir.", "escribir(\"Hola\");"); :}
+escritura ::= ESCRIBIR LPAREN lista_elementos RPAREN SEMICOLON {: System.out.println("Regla reconocida: sentencia de escritura"); :}
+            | ESCRIBIR LPAREN lista_elementos error SEMICOLON {: parser.imprimirDiagnostico("No se encontro el parentesis de cierre en la escritura.", "Un parentesis ')'.", "Agrega el parentesis de cierre antes del punto y coma.", "escribir(\"Hola\");"); :}
+            | ESCRIBIR error SEMICOLON {: parser.imprimirDiagnostico("Estructura invalida en sentencia de escritura.", "Parentesis y contenido a escribir.", "Verifica la sintaxis de la instruccion escribir.", "escribir(\"Hola\");"); :}
             ;
 
 lista_elementos ::= elemento | lista_elementos COMMA elemento ;
 
-retorno ::= RETURN expresion SEMICOLON 
-          {: System.out.println("Regla reconocida: retorno con expresion"); :}
-          | RETURN SEMICOLON 
-          {: System.out.println("Regla reconocida: retorno sin expresion"); :}
+retorno ::= RETURN:r expresion:e SEMICOLON 
+          {: 
+              parser.validarRetorno(e, rleft, rright);
+              System.out.println("Regla reconocida: retorno con expresion"); 
+          :}
+          | RETURN:r SEMICOLON 
+          {: 
+              parser.validarRetorno("void", rleft, rright);
+              System.out.println("Regla reconocida: retorno sin expresion"); 
+          :}
           | RETURN error SEMICOLON 
           {: parser.imprimirDiagnostico("Expresion invalida en sentencia return.", "Un valor o variable a retornar.", "Verifica lo que estas intentando retornar.", "return a + b;"); :}
           ;
 
 // --- LLAMADAS A MÉTODOS ---
-llamada_metodo ::= IDENTIFIER LPAREN RPAREN 
-                 {: System.out.println("Regla reconocida: llamada_sin_argumentos"); :}
-                 | IDENTIFIER LPAREN lista_argumentos RPAREN 
-                 {: System.out.println("Regla reconocida: llamada_metodo_con_argumentos"); :}
+llamada_metodo ::= IDENTIFIER:id LPAREN RPAREN 
+                 {: 
+                     RESULT = parser.validarLlamadaMetodo(id, new ArrayList<>(), idleft, idright); 
+                     System.out.println("Regla reconocida: llamada_sin_argumentos"); 
+                 :}
+                 | IDENTIFIER:id LPAREN lista_argumentos:args RPAREN 
+                 {: 
+                     RESULT = parser.validarLlamadaMetodo(id, args, idleft, idright); 
+                     System.out.println("Regla reconocida: llamada_metodo_con_argumentos"); 
+                 :}
                  | IDENTIFIER LPAREN error RPAREN 
-                 {: parser.imprimirDiagnostico("Estructura incompleta o invalida en los argumentos de la llamada.", "Una lista de argumentos validos separados por comas.", "Verifica los valores que le pasas al metodo.", "sumar(a, b);"); :}
+                 {: parser.imprimirDiagnostico("Estructura incompleta o invalida en los argumentos de la llamada.", "Una lista de argumentos validos separados por comas.", "Verifica los valores que le pasas al metodo.", "sumar(a, b);"); RESULT = "error"; :}
                  ;
 
-lista_argumentos ::= expresion 
-                   {: System.out.println("Regla reconocida: argumento procesado"); :}
-                   | lista_argumentos COMMA expresion
-                   | lista_argumentos COMMA error 
-                   {: parser.imprimirDiagnostico("Se encontro una coma adicional o un argumento vacio al final.", "Un valor o expresion despues de la coma.", "Elimina la coma adicional o proporciona el argumento faltante.", "sumar(a, b)"); :}
-                   | error COMMA expresion 
-                   {: parser.imprimirDiagnostico("Se esperaba una expresion antes de la coma.", "Un valor o argumento valido.", "Proporciona el argumento faltante o elimina la coma si no es necesaria.", "sumar(a, b)"); :}
+lista_argumentos ::= expresion:e 
+                   {: 
+                       List<String> l = new ArrayList<>(); 
+                       l.add(e); 
+                       RESULT = l; 
+                       System.out.println("Regla reconocida: argumento procesado"); 
+                   :}
+                   | lista_argumentos:l COMMA expresion:e 
+                   {: 
+                       l.add(e); 
+                       RESULT = l; 
+                   :}
+                   | lista_argumentos:l COMMA error 
+                   {: 
+                       parser.imprimirDiagnostico("Se encontro una coma adicional o un argumento vacio al final.", "Un valor o expresion despues de la coma.", "Elimina la coma adicional o proporciona el argumento faltante.", "sumar(a, b)"); 
+                       l.add("error");
+                       RESULT = l;
+                   :}
+                   | error COMMA expresion:e 
+                   {: 
+                       parser.imprimirDiagnostico("Se esperaba una expresion antes de la coma.", "Un valor o argumento valido.", "Proporciona el argumento faltante o elimina la coma si no es necesaria.", "sumar(a, b)"); 
+                       List<String> l = new ArrayList<>(); 
+                       l.add("error");
+                       l.add(e);
+                       RESULT = l;
+                   :}
                    ;

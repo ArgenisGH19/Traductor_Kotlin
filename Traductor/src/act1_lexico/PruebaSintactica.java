@@ -12,7 +12,7 @@ public class PruebaSintactica {
         System.out.println("=========================================================\n");
 
         // Cambia el nombre del archivo .txt aquí según la prueba que quieras hacer
-        String rutaArchivo = "src/act1_lexico/semantica_valida_act9.txt"; 
+        String rutaArchivo = "src/act1_lexico/prueba_valida_act11.txt"; 
         System.out.println("--- INICIANDO ANALISIS SINTACTICO Y SEMANTICO ---");
         System.out.println("Archivo a analizar: " + rutaArchivo + "\n");
 

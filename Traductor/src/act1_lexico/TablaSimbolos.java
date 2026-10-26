@@ -4,22 +4,24 @@ import java.util.LinkedList;
 import java.util.Stack;
 
 /*
-Actividad 9: Analisis semantico gestion de la tabla de simbolos y tipos de datos
+Actividad 9 y 11: Analisis semantico gestion de la tabla de simbolos, tipos de datos y control
 Gerardo Josue Rubio Calderon
 Pablo Becerra Bedoy
 Argenis Adan Gutierez Hurtado
 */
 
 public class TablaSimbolos {
-    // Estructura dinámica para guardar todos los símbolos
     private LinkedList<Simbolo> tabla;
-    // Pila para manejar en qué bloque o método estamos actualmente
     private Stack<String> pilaAmbitos;
+    
+    // --- ¡NUEVO (Actividad 11)! Radares de Control ---
+    private int ciclosAnidados = 0;
+    private String tipoRetornoActual = "void"; 
 
     public TablaSimbolos() {
         tabla = new LinkedList<>();
         pilaAmbitos = new Stack<>();
-        pilaAmbitos.push("GLOBAL"); // El ámbito por defecto al iniciar el archivo
+        pilaAmbitos.push("GLOBAL");
     }
 
     // --- MANEJO DE ÁMBITOS ---
@@ -38,15 +40,32 @@ public class TablaSimbolos {
     }
     
     public String determinarCategoriaVariable() {
-        // Si el tamaño de la pila es 2 (GLOBAL -> NombreDeClase), es un Atributo
         if (pilaAmbitos.size() <= 2) {
             return "ATRIBUTO";
         }
-        // Si es mayor a 2, estamos dentro de un método, es Variable Local
         return "VARIABLE";
     }
 
-    // --- VALIDACIONES DE NOMENCLATURA (Reglas de la Actividad) ---
+    // --- ¡NUEVO (Actividad 11)! RADAR DE CICLOS Y RETORNOS ---
+    public void entrarCiclo() { ciclosAnidados++; }
+    
+    public void salirCiclo() { if(ciclosAnidados > 0) ciclosAnidados--; }
+    
+    public boolean estoyEnUnCiclo() { return ciclosAnidados > 0; }
+    
+    public void setTipoRetornoActual(String tipo) { this.tipoRetornoActual = tipo; }
+    
+    public String getTipoRetornoActual() { return this.tipoRetornoActual; }
+
+    public void registrarParametroEnMetodoActual(String tipoDato) {
+        String nombreMetodo = getAmbitoActual();
+        Simbolo metodo = obtenerSimbolo(nombreMetodo);
+        if (metodo != null && metodo.getCategoria().equals("METODO")) {
+            metodo.agregarTipoParametro(tipoDato);
+        }
+    }
+
+    // --- VALIDACIONES DE NOMENCLATURA ---
     public boolean esCamelCase(String id) {
         return id.matches("^[a-z]+([A-Z][a-z0-9]*)*$");
     }
@@ -56,7 +75,6 @@ public class TablaSimbolos {
     }
 
     public boolean esSnakeCaseOConstante(String id) {
-        // Acepta mayúsculas con guiones bajos (MAX_VALOR) o camelCase para constantes
         return id.matches("^[A-Z]+(_[A-Z]+)*$") || esCamelCase(id);
     }
 
@@ -64,7 +82,6 @@ public class TablaSimbolos {
     public boolean agregarSimbolo(String id, String categoria, String tipoDato, String valor, int linea, int columna) {
         String ambitoActual = getAmbitoActual();
 
-        // 1. Validar si ya existe en el MISMO ámbito (Variable duplicada)
         for (Simbolo s : tabla) {
             if (s.getId().equals(id) && s.getAmbito().equals(ambitoActual)) {
                 System.err.println("Error semantico en linea " + linea + ", columna " + columna + 
@@ -73,7 +90,6 @@ public class TablaSimbolos {
             }
         }
 
-        // 2. Validar Nomenclatura (Casing) según la categoría
         if (categoria.equals("CLASE") && !esPascalCase(id)) {
             System.err.println("Error lexico/semantico en linea " + linea + ", columna " + columna + 
                                ": La clase '" + id + "' debe usar la convencion PascalCase.");
@@ -85,21 +101,29 @@ public class TablaSimbolos {
                                ": La constante '" + id + "' debe usar mayusculas (SNAKE_CASE) o camelCase.");
         }
 
-        // 3. Crear e insertar en la estructura dinámica
         Simbolo nuevoSimbolo = new Simbolo(id, categoria, tipoDato, valor, ambitoActual, linea, columna, "ID");
         tabla.add(nuevoSimbolo);
         return true;
     }
 
-    // --- BÚSQUEDA (Para saber si una variable existe antes de usarla) ---
+    // --- BÚSQUEDA ---
     public boolean existeSimbolo(String id) {
-        // Busca desde el ámbito actual hacia afuera
         for (Simbolo s : tabla) {
             if (s.getId().equals(id)) {
                 return true;
             }
         }
         return false;
+    }
+
+    public Simbolo obtenerSimbolo(String id) {
+        for (int i = tabla.size() - 1; i >= 0; i--) {
+            Simbolo s = tabla.get(i);
+            if (s.getId().equals(id)) {
+                return s;
+            }
+        }
+        return null; 
     }
 
     // --- IMPRESIÓN DEL REPORTE FINAL ---
@@ -118,17 +142,5 @@ public class TablaSimbolos {
         }
         System.out.println("========================================================================================================================");
         System.out.println("Total de simbolos registrados: " + tabla.size());
-    }
-    
-    // --- OBTENER SÍMBOLO (Para análisis semántico) Actividad 10---
-    public Simbolo obtenerSimbolo(String id) {
-        // Busca desde el ámbito más profundo (el último insertado) hacia el global
-        for (int i = tabla.size() - 1; i >= 0; i--) {
-            Simbolo s = tabla.get(i);
-            if (s.getId().equals(id)) {
-                return s;
-            }
-        }
-        return null; // Retorna null si no está declarada
     }
 }

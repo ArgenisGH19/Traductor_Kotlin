@@ -67,6 +67,8 @@ Comment            = {TraditionalComment} | {EndOfLineComment}
     "do"               { return symbol(sym.DO, yytext()); }
     "for"              { return symbol(sym.FOR, yytext()); }
     "in"               { return symbol(sym.IN, yytext()); }
+    "break"            { return symbol(sym.BREAK, yytext()); }
+    "continue"         { return symbol(sym.CONTINUE, yytext()); }
 
     /* Literales Booleanos y Nulos */
     "true"             { return symbol(sym.TRUE, yytext()); }
