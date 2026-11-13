@@ -1,0 +1,14 @@
+package com.mi.proyecto;
+
+class Principal {
+    fun calcular(a: int, b: int): int {
+        var x: int = a + b * 2;
+        var y: int = x - 5;
+        return y;
+    }
+
+    fun iniciar() {
+        var resultado: int = calcular(10, 20);
+        escribir(resultado);
+    }
+}
