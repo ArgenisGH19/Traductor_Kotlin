@@ -1,5 +1,10 @@
 package com.mi.proyecto;
 
+/*
+Equipo 2: Kotlin
+ INTEGRANTES: Argenis Adán Gutiérrez Hurtado, Gerardo Josue Rubio Calderon, Pablo Becerra Bedoy
+*/
+
 class Principal {
     fun calcular(a: int, b: int): int {
         var x: int = a + b * 2;
