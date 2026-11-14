@@ -24,6 +24,12 @@ public class Traductor {
             parser analizador = new parser(lexer);
             
             System.out.println("--- Iniciando analisis sintactico y semantico ---");
+            System.out.println("=======================================================");
+            System.out.println("=== INTEGRANTES DEL EQUIPO ===");
+            System.out.println("1. Becerra Bedoy, Pablo");
+            System.out.println("2. Gutierrez Hurtado, Argenis Adan");
+            System.out.println("3. Rubio Calderon, Gerardo Josue");
+            System.out.println("=========================================================\n");
             
             // 3. Inicia el análisis
             analizador.parse();
@@ -50,7 +56,11 @@ public class Traductor {
                 System.out.println("No se genero codigo intermedio.");
             }
             System.out.println("=======================================================");
-
+            System.out.println("=== INTEGRANTES DEL EQUIPO ===");
+            System.out.println("1. Becerra Bedoy, Pablo");
+            System.out.println("2. Gutierrez Hurtado, Argenis Adan");
+            System.out.println("3. Rubio Calderon, Gerardo Josue");
+            System.out.println("=========================================================\n");
         } catch (Exception e) {
             System.err.println("Error durante la ejecucion del parser: " + e.getMessage());
             e.printStackTrace();

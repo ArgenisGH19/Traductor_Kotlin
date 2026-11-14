@@ -1,6 +1,10 @@
 package act1_lexico;
 
 public class NodoExp {
+    /*
+    Equipo 2: Kotlin
+    INTEGRANTES: Argenis Adán Gutiérrez Hurtado, Gerardo Josue Rubio Calderon, Pablo Becerra Bedoy
+*/
     public String lugar;
     public String tipo;
 
