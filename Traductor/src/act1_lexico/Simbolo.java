@@ -4,10 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /*
-Actividad 9 y 11: Analisis semantico gestion de la tabla de simbolos, tipos de datos y firmas
-Gerardo Josue Rubio Calderon
-Pablo Becerra Bedoy
-Argenis Adan Gutierez Hurtado
+Equipo 2: Kotlin
+INTEGRANTES: Argenis Adán Gutiérrez Hurtado, Gerardo Josue Rubio Calderon, Pablo Becerra Bedoy
 */
 public class Simbolo {
     private String id;
@@ -18,9 +16,10 @@ public class Simbolo {
     private int linea;
     private int columna;
     private String tokenOriginador;
-    
-    // --- ¡NUEVO (Actividad 11)! Memoria para firmas de métodos ---
     private List<String> tiposParametros;
+    
+    // --- NUEVO: Etiqueta C3D asociada al método (ej. L6, L7) ---
+    private String etiquetaC3D;
 
     public Simbolo(String id, String categoria, String tipoDato, String valor, String ambito, int linea, int columna, String tokenOriginador) {
         this.id = id;
@@ -31,10 +30,10 @@ public class Simbolo {
         this.linea = linea;
         this.columna = columna;
         this.tokenOriginador = tokenOriginador;
-        this.tiposParametros = new ArrayList<>(); // Lo inicializamos vacío
+        this.tiposParametros = new ArrayList<>();
+        this.etiquetaC3D = "";
     }
 
-    // Getters originales
     public String getId() { return id; }
     public String getCategoria() { return categoria; }
     public String getTipoDato() { return tipoDato; }
@@ -44,7 +43,10 @@ public class Simbolo {
     public int getColumna() { return columna; }
     public String getTokenOriginador() { return tokenOriginador; }
 
-    // --- ¡NUEVOS METODOS (Actividad 11)! ---
+    public void setTipoDato(String tipoDato) { 
+        this.tipoDato = tipoDato; 
+    }
+
     public void agregarTipoParametro(String tipo) {
         this.tiposParametros.add(tipo);
     }
@@ -52,10 +54,12 @@ public class Simbolo {
     public List<String> getTiposParametros() {
         return tiposParametros;
     }
-    
-    public void setTipoDato(String tipoDato) {
-        this.tipoDato = tipoDato;
+
+    public String getEtiquetaC3D() {
+        return etiquetaC3D;
+    }
+
+    public void setEtiquetaC3D(String etiquetaC3D) {
+        this.etiquetaC3D = etiquetaC3D;
     }
 }
-
-    

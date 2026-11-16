@@ -1,0 +1,72 @@
+package com.ejemplo;
+//ACT 13: Codigo Intermedio para Control de Flujo
+class Persona {
+    var edad: int;
+
+    fun celebrarCumpleanos() {
+        edad = edad + 1;
+    }
+}
+
+class ControlFlujo {
+
+    fun suma(a: int, b: int): int {
+        return a + b;
+    }
+
+    fun ejecutarPruebas() {
+        // 1. Estructuras Condicionales: if y else
+        var x: int = 10;
+        var y: int = 5;
+        var z: int = 0;
+
+        if (x > y) {
+            z = x;
+        } else {
+            z = y;
+        }
+
+        // 2. Estructura switch (when en Kotlin)
+        var n: int = 1;
+        var resultTexto: String = "";
+
+        when (n) {
+            1 -> {
+                resultTexto = "Uno";
+                break;
+            }
+            2 -> {
+                resultTexto = "Dos";
+                break;
+            }
+            else -> {
+                resultTexto = "Otro";
+            }
+        }
+
+        // 3. Bucle while
+        var i: int = 0;
+        while (i < 10) {
+            i = i + 1;
+        }
+
+        // 4. Bucle for
+        var sum: int = 0;
+        for (j in 0..5) {
+            sum = sum + j;
+        }
+
+        // 5. Bucle do-while
+        var count: int = 0;
+        do {
+            count = count + 1;
+        } while (count < 10);
+
+        // 6. Llamada a metodo con paso de parametros y valor de retorno
+        var result: int = suma(5, 3);
+
+        // 7. Creacion de objeto y llamada a metodo de clase
+        var obj: Persona = Persona();
+        obj.celebrarCumpleanos();
+    }
+}
