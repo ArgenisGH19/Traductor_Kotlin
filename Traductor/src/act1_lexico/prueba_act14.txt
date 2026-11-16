@@ -1,0 +1,35 @@
+package com.optimizacion;
+
+class PruebasOptimizador {
+
+    // 1. Prueba de Instrucciones Inalcanzables y Variables No Utilizadas
+    fun pruebaCodigoMuerto() {
+        var a: int = 5;
+        var b: int = 10;
+        var c: int = b + 2;
+        var result: int = c;
+
+        // Generamos un salto incondicional (return) seguido de codigo inalcanzable
+        return;
+        var yMuerta: int = 20;
+    }
+
+    // 2. Prueba de Calculos Repetidos y Asignaciones Innecesarias (Sobrescritura)
+    fun pruebaRedundancias(a: int, b: int) {
+        var calc1: int = a + b;
+        var calc2: int = a + b;
+        var result: int = calc1;
+
+        var temp: int = a;
+        temp = b;
+        result = temp;
+    }
+
+    // 3. Prueba de Simplificacion de Calculos en Cadena (x + 5 + 10 -> x + 15)
+    fun pruebaSimplificacion() {
+        var x: int = 10;
+        var y: int = x + 5;
+        var z: int = y + 10;
+        var result: int = z;
+    }
+}

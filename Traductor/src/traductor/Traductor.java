@@ -2,7 +2,9 @@ package traductor;
 
 import act1_lexico.LexerJava;
 import act1_lexico.parser;
+import act1_lexico.OptimizadorC3D;
 import java.io.*;
+import java.util.List;
 
 /*
 Equipo 2: Kotlin
@@ -18,8 +20,8 @@ public class Traductor {
         System.out.println("3. Rubio Calderon, Gerardo Josue");
         System.out.println("=========================================================\n");
 
-        String rutaArchivo = "src/act1_lexico/prueba_act13.txt"; 
-        System.out.println("--- INICIANDO ANALISIS Y GENERACION DE CODIGO INTERMEDIO ---");
+        String rutaArchivo = "src/act1_lexico/prueba_act14.txt"; 
+        System.out.println("--- INICIANDO ANALISIS, GENERACION Y OPTIMIZACION C3D ---");
         System.out.println("Archivo a analizar: " + rutaArchivo + "\n");
 
         parser analizador = null;
@@ -48,7 +50,7 @@ public class Traductor {
             // 1. Inicia el análisis sintáctico, semántico y generación C3D
             analizador.parse();
 
-            // 2. Resumen de diagnóstico (Situación 1 y 2)
+            // 2. Resumen de diagnóstico
             System.out.println("\n========================================================");
             if (analizador.totalErrores == 0 && analizador.totalErroresSemanticos == 0) {
                 System.out.println("ANALISIS FINALIZADO CORRECTAMENTE");
@@ -65,18 +67,41 @@ public class Traductor {
             // 3. Imprimimos la Tabla de Símbolos final
             analizador.tablaSimbolos.imprimirTabla();
 
-            // 4. Imprimimos el Código de 3 Direcciones (C3D)
+            // 4. Imprimimos el Código de 3 Direcciones (ORIGINAL)
             System.out.println("\n========================================================");
-            System.out.println("              CODIGO DE 3 DIRECCIONES (C3D)");
+            System.out.println("        CODIGO DE 3 DIRECCIONES (SIN OPTIMIZAR)");
             System.out.println("========================================================");
             if (analizador.codigoIntermedio != null && !analizador.codigoIntermedio.isEmpty()) {
                 for (String instruccion : analizador.codigoIntermedio) {
                     System.out.println(instruccion);
                 }
+
+                // 5. Ejecutamos el Optimizador de C3D
+                OptimizadorC3D optimizador = new OptimizadorC3D();
+                List<String> codigoOptimizado = optimizador.optimizar(analizador.codigoIntermedio);
+
+                System.out.println("\n========================================================");
+                System.out.println("          BITACORA DE OPTIMIZACIONES APLICADAS");
+                System.out.println("========================================================");
+                if (optimizador.getBitacora().isEmpty()) {
+                    System.out.println("No se encontraron instrucciones muertas o redundantes.");
+                } else {
+                    for (String evento : optimizador.getBitacora()) {
+                        System.out.println(" -> " + evento);
+                    }
+                }
+
+                System.out.println("\n========================================================");
+                System.out.println("          CODIGO DE 3 DIRECCIONES (OPTIMIZADO)");
+                System.out.println("========================================================");
+                for (String instOpt : codigoOptimizado) {
+                    System.out.println(instOpt);
+                }
+                System.out.println("========================================================\n");
+
             } else {
                 System.out.println("No se genero codigo intermedio.");
             }
-            System.out.println("========================================================\n");
 
         } catch (Exception e) {
             System.err.println("\n========================================================");
