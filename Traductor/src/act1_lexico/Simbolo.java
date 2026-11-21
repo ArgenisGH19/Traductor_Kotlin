@@ -18,8 +18,11 @@ public class Simbolo {
     private String tokenOriginador;
     private List<String> tiposParametros;
     
-    // --- NUEVO: Etiqueta C3D asociada al método (ej. L6, L7) ---
+    // Etiqueta C3D asociada al método (ej. L6, L7)
     private String etiquetaC3D;
+
+    // Dirección de memoria asignada (ej. 0x2000, 0x2004)
+    private String direccionMemoria;
 
     public Simbolo(String id, String categoria, String tipoDato, String valor, String ambito, int linea, int columna, String tokenOriginador) {
         this.id = id;
@@ -32,6 +35,7 @@ public class Simbolo {
         this.tokenOriginador = tokenOriginador;
         this.tiposParametros = new ArrayList<>();
         this.etiquetaC3D = "";
+        this.direccionMemoria = "N/A";
     }
 
     public String getId() { return id; }
@@ -61,5 +65,13 @@ public class Simbolo {
 
     public void setEtiquetaC3D(String etiquetaC3D) {
         this.etiquetaC3D = etiquetaC3D;
+    }
+
+    public String getDireccionMemoria() {
+        return direccionMemoria;
+    }
+
+    public void setDireccionMemoria(String direccionMemoria) {
+        this.direccionMemoria = direccionMemoria;
     }
 }

@@ -1,0 +1,40 @@
+package com.ejemplo;
+
+class Prueba1Final {
+
+    fun calcularArea(base: int, altura: int): int {
+        return base * altura;
+    }
+
+    fun esPositivo(numero: int): boolean {
+        return numero > 0;
+    }
+
+    fun main() {
+        var baseInicial: int = 10 + 10;
+        var alturaInicial: int = 5;
+        var contador: int = 0;
+        var activo: boolean = true;
+
+        while (activo) {
+            contador = contador + 1;
+
+            if (contador == 3) {
+                escribir("Iteracion intermedia alcanzada");
+                continue;
+            }
+
+            if (contador >= 6) {
+                escribir("Limite del ciclo alcanzado");
+                break;
+            }
+        }
+
+        var areaCalculada: int = calcularArea(baseInicial, alturaInicial);
+        escribir(areaCalculada);
+
+        if (esPositivo(areaCalculada)) {
+            escribir("El area calculada es valida y positiva");
+        }
+    }
+}

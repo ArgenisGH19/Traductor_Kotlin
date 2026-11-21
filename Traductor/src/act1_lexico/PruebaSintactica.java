@@ -12,7 +12,7 @@ public class PruebaSintactica {
         System.out.println("=========================================================\n");
 
         // Cambia el nombre del archivo .txt aquí según la prueba que quieras hacer
-        String rutaArchivo = "src/act1_lexico/prueba_valida_act11.txt"; 
+        String rutaArchivo = "src/act1_lexico/Prueba1Final.txt"; 
         System.out.println("--- INICIANDO ANALISIS SINTACTICO Y SEMANTICO ---");
         System.out.println("Archivo a analizar: " + rutaArchivo + "\n");
 
@@ -59,6 +59,34 @@ public class PruebaSintactica {
 
             // Imprimimos la tabla de símbolos al final
             sintactico.tablaSimbolos.imprimirTabla();
+
+            // =========================================================================
+            // PRACTICA: GENERACION DE CODIGO MAQUINA, DIRECCIONES Y EJECUTABLE
+            // =========================================================================
+            if (sintactico.totalErrores == 0 && sintactico.totalErroresSemanticos == 0) {
+                // 1. Imprimir tabla de símbolos con direcciones de memoria (Punto 2.2)
+                sintactico.tablaSimbolos.imprimirTablaDirecciones();
+
+                // 2. Optimizar, traducir a código máquina y resolver direcciones (Puntos 1 y 2.1)
+                GeneradorCodigoMaquina genMaquina = new GeneradorCodigoMaquina(
+                        sintactico.tablaSimbolos,
+                        sintactico.codigoIntermedio
+                );
+                genMaquina.compilar();
+                genMaquina.imprimirResultados();
+
+                // 3. Crear archivo ejecutable y ejecutar en entorno configurado (Punto 3)
+                GeneradorEjecutable genEjecutable = new GeneradorEjecutable(
+                        sintactico.tablaSimbolos,
+                        genMaquina.getCodigoMaquinaDirecciones(),
+                        genMaquina.getMapaEtiquetas(),
+                        "programa_generado.exe"
+                );
+                File archivoEjecutable = genEjecutable.crearArchivoEjecutable();
+                genEjecutable.configurarYEjecutar(archivoEjecutable);
+            } else {
+                System.err.println("No se genero codigo maquina debido a errores previos en el analisis.");
+            }
 
         } catch (Exception e) {
             // --- IMPRESIÓN DE DIAGNÓSTICO FINAL (Situación 3: Error Fatal) ---

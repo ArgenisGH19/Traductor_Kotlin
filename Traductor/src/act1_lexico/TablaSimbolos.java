@@ -14,9 +14,12 @@ public class TablaSimbolos {
     private LinkedList<Simbolo> tabla;
     private Stack<String> pilaAmbitos;
     
-    // --- ¡NUEVO (Actividad 11)! Radares de Control ---
+    // Radares de Control
     private int ciclosAnidados = 0;
     private String tipoRetornoActual = "void"; 
+
+    // Contador base de memoria para el segmento .data (avanza de 4 en 4 bytes)
+    private int direccionBaseMemoria = 0x2000;
 
     public TablaSimbolos() {
         tabla = new LinkedList<>();
@@ -46,7 +49,7 @@ public class TablaSimbolos {
         return "VARIABLE";
     }
 
-    // --- ¡NUEVO (Actividad 11)! RADAR DE CICLOS Y RETORNOS ---
+    // --- RADAR DE CICLOS Y RETORNOS ---
     public void entrarCiclo() { ciclosAnidados++; }
     
     public void salirCiclo() { if(ciclosAnidados > 0) ciclosAnidados--; }
@@ -102,6 +105,13 @@ public class TablaSimbolos {
         }
 
         Simbolo nuevoSimbolo = new Simbolo(id, categoria, tipoDato, valor, ambitoActual, linea, columna, "ID");
+
+        // Asignación automática de dirección de memoria para variables, atributos y constantes
+        if (categoria.equals("VARIABLE") || categoria.equals("ATRIBUTO") || categoria.equals("CONSTANTE")) {
+            nuevoSimbolo.setDireccionMemoria(String.format("0x%04X", direccionBaseMemoria));
+            direccionBaseMemoria += 4;
+        }
+
         tabla.add(nuevoSimbolo);
         return true;
     }
@@ -126,21 +136,41 @@ public class TablaSimbolos {
         return null; 
     }
 
+    public LinkedList<Simbolo> getTabla() {
+        return tabla;
+    }
+
     // --- IMPRESIÓN DEL REPORTE FINAL ---
     public void imprimirTabla() {
-        System.out.println("\n========================================================================================================================");
-        System.out.println("                                                  TABLA DE SIMBOLOS");
-        System.out.println("========================================================================================================================");
-        System.out.printf("%-18s %-13s %-11s %-16s %-17s %-7s %-9s %-15s\n", 
-                          "ID", "Categoria", "Tipo Dato", "Valor", "Ambito", "Linea", "Columna", "Token Originador");
-        System.out.println("------------------------------------------------------------------------------------------------------------------------");
+        System.out.println("\n=====================================================================================================================================");
+        System.out.println("                                                        TABLA DE SIMBOLOS");
+        System.out.println("=====================================================================================================================================");
+        System.out.printf("%-18s %-13s %-11s %-16s %-17s %-12s %-7s %-9s %-15s\n", 
+                          "ID", "Categoria", "Tipo Dato", "Valor", "Ambito", "Direccion", "Linea", "Columna", "Token Originador");
+        System.out.println("-------------------------------------------------------------------------------------------------------------------------------------");
         
         for (Simbolo s : tabla) {
-            System.out.printf("%-18s %-13s %-11s %-16s %-17s %-7d %-9d %-15s\n",
+            System.out.printf("%-18s %-13s %-11s %-16s %-17s %-12s %-7d %-9d %-15s\n",
                     s.getId(), s.getCategoria(), s.getTipoDato(), s.getValor(), 
-                    s.getAmbito(), s.getLinea(), s.getColumna(), s.getTokenOriginador());
+                    s.getAmbito(), s.getDireccionMemoria(), s.getLinea(), s.getColumna(), s.getTokenOriginador());
         }
-        System.out.println("========================================================================================================================");
+        System.out.println("=====================================================================================================================================");
         System.out.println("Total de simbolos registrados: " + tabla.size());
+    }
+
+    // --- IMPRESIÓN DE TABLA DE DIRECCIONES DE MEMORIA (PUNTO 2.2) ---
+    public void imprimirTablaDirecciones() {
+        System.out.println("\n====================================================");
+        System.out.println("     TABLA DE SIMBOLOS (ASIGNACION DE MEMORIA)");
+        System.out.println("====================================================");
+        System.out.printf("| %-18s | %-12s | %-12s |\n", "Simbolo", "Categoria", "Direccion");
+        System.out.println("|--------------------|--------------|--------------|");
+        for (Simbolo s : tabla) {
+            if (!s.getDireccionMemoria().equals("N/A")) {
+                System.out.printf("| %-18s | %-12s | %-12s |\n",
+                        s.getId(), s.getCategoria(), s.getDireccionMemoria());
+            }
+        }
+        System.out.println("====================================================\n");
     }
 }
