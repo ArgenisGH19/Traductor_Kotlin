@@ -12,6 +12,8 @@ import java_cup.runtime.Symbol;
 %cupsym act1_lexico.sym
 /* Para la actividad 9 se menciona la captura de Posicion, pero esto ya lo agregamos anteriormente */
 %{
+    public int totalErroresLexicos = 0;
+
     private Symbol symbol(int type) {
         return new Symbol(type, yyline + 1, yycolumn + 1);
     }
@@ -31,7 +33,7 @@ IntLiteral     = {Digit}+
 FloatLiteral   = {Digit}+\.{Digit}+[fF]?
 DoubleLiteral  = {Digit}+\.{Digit}+[dD]?
 CharLiteral    = '([^'\\]|\\.)'
-StringLiteral  = \"([^\"\\]|\\.)*\"
+StringLiteral  = \"([^\"\\\r\n]|\\.)*\"
 
 /* Comentarios */
 TraditionalComment = "/*" [^*] ~"*/" | "/*" "*"+ "/"
@@ -140,14 +142,20 @@ Comment            = {TraditionalComment} | {EndOfLineComment}
     {Identifier}       { return symbol(sym.IDENTIFIER, yytext()); }
 
     /* Errores Léxicos */
+    \"([^\"\\\r\n]|\\.)* {
+                         totalErroresLexicos++;
+                         System.err.println("Error Lexico [Linea " + (yyline+1) + ", Columna " + (yycolumn+1) + "]: Cadena de texto sin cerrar.");
+                       }
     {Digit}+{Letter}+  { 
+                         totalErroresLexicos++;
                          System.err.println("Error Lexico [Linea " + (yyline+1) + ", Columna " + (yycolumn+1) + "]: Identificador invalido '" + yytext() + "'");
-                         return symbol(sym.ERROR, yytext()); 
+                         
                        }
 }
 
 /* Carácter no permitido */
 [^]                    { 
+                         totalErroresLexicos++;
                          System.err.println("Error Lexico [Linea " + (yyline+1) + ", Columna " + (yycolumn+1) + "]: Caracter no permitido '" + yytext() + "'");
-                         return symbol(sym.ERROR, yytext()); 
+                        
                        }

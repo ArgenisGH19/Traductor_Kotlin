@@ -11,7 +11,7 @@
 ; Punto de entrada principal
 .method public static main([Ljava/lang/String;)V
     .limit stack 16
-    .limit locals 22
+    .limit locals 30
 
     ; Inicializacion de java.util.Scanner(System.in)
     new java/util/Scanner
@@ -29,35 +29,47 @@
     istore 4 ; t4
     iconst_0
     istore 5 ; formula
+    iconst_0
+    istore 6 ; cociente
+    iconst_0
+    istore 7 ; residuo
     dconst_0
-    dstore 6 ; tasa
+    dstore 8 ; bono
     dconst_0
-    dstore 8 ; subtotal
+    dstore 10 ; tasa
     dconst_0
-    dstore 10 ; iva
+    dstore 12 ; subtotal
     dconst_0
-    dstore 12 ; totalPagar
+    dstore 14 ; iva
+    dconst_0
+    dstore 16 ; t9
+    dconst_0
+    dstore 18 ; totalPagar
     iconst_0
-    istore 14 ; edad
+    istore 20 ; edad
     iconst_0
-    istore 15 ; tieneBeca
+    istore 21 ; tieneBeca
     iconst_0
-    istore 16 ; t8
+    istore 22 ; t11
     iconst_0
-    istore 17 ; t9
+    istore 23 ; t12
     iconst_0
-    istore 18 ; t10
+    istore 24 ; t13
     iconst_0
-    istore 19 ; t11
+    istore 25 ; t14
     iconst_0
-    istore 20 ; t12
+    istore 26 ; t15
     iconst_0
-    istore 21 ; t13
+    istore 27 ; contador
+    iconst_0
+    istore 28 ; t16
+    iconst_0
+    istore 29 ; t18
 
     ; Codigo traducido desde C3D
 L1:
     getstatic java/lang/System/out Ljava/io/PrintStream;
-    ldc "=== PRUEBA DE LOGICA, DECIMALES Y OPTIMIZADOR ==="
+    ldc "=== PRUEBA INTEGRAL DE LOGICA, CICLOS Y OPTIMIZADOR ==="
     invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V
     ldc 25
     istore 2
@@ -79,23 +91,51 @@ L1:
     getstatic java/lang/System/out Ljava/io/PrintStream;
     iload 5
     invokevirtual java/io/PrintStream/println(I)V
-    ldc2_w 0.16
-    dstore 6
-    ldc2_w 200.0
-    dstore 8
-    dload 8
-    dload 6
-    dmul
-    dstore 10
-    dload 8
-    dload 10
-    dadd
-    dstore 12
+    ; [Guardia C3D] if 4 == 0 then error "Division by zero"
+    ldc 20
+    ldc 4
+    idiv
+    istore 6
+    ; [Guardia C3D] if 4 == 0 then error "Division by zero"
+    ldc 21
+    ldc 4
+    irem
+    istore 7
     getstatic java/lang/System/out Ljava/io/PrintStream;
-    ldc "Total con IVA (debe ser 232.0): "
+    ldc "Division 20/4 (debe ser 5): "
     invokevirtual java/io/PrintStream/print(Ljava/lang/String;)V
     getstatic java/lang/System/out Ljava/io/PrintStream;
+    iload 6
+    invokevirtual java/io/PrintStream/println(I)V
+    getstatic java/lang/System/out Ljava/io/PrintStream;
+    ldc "Modulo 21%4 (debe ser 1): "
+    invokevirtual java/io/PrintStream/print(Ljava/lang/String;)V
+    getstatic java/lang/System/out Ljava/io/PrintStream;
+    iload 7
+    invokevirtual java/io/PrintStream/println(I)V
+    ldc2_w 12.0
+    dstore 8
+    ldc2_w 0.16
+    dstore 10
+    ldc2_w 200.0
+    dstore 12
     dload 12
+    dload 10
+    dmul
+    dstore 14
+    dload 12
+    dload 14
+    dadd
+    dstore 16
+    dload 16
+    dload 8
+    dsub
+    dstore 18
+    getstatic java/lang/System/out Ljava/io/PrintStream;
+    ldc "Total con IVA menos bono de 12 (debe ser 220.0): "
+    invokevirtual java/io/PrintStream/print(Ljava/lang/String;)V
+    getstatic java/lang/System/out Ljava/io/PrintStream;
+    dload 18
     invokevirtual java/io/PrintStream/println(D)V
     getstatic java/lang/System/out Ljava/io/PrintStream;
     ldc "Ingresa tu edad: "
@@ -105,10 +145,10 @@ L1:
     invokevirtual java/util/Scanner/nextLine()Ljava/lang/String;
     invokevirtual java/lang/String/trim()Ljava/lang/String;
     invokestatic java/lang/Integer/parseInt(Ljava/lang/String;)I
-    istore 14
+    istore 20
     iconst_1
-    istore 15
-    iload 14
+    istore 21
+    iload 20
     ldc 18
     if_icmpge L_CMP_T_1
     iconst_0
@@ -116,8 +156,8 @@ L1:
 L_CMP_T_1:
     iconst_1
 L_CMP_E_1:
-    istore 16
-    iload 14
+    istore 22
+    iload 20
     ldc 25
     if_icmple L_CMP_T_2
     iconst_0
@@ -125,20 +165,20 @@ L_CMP_E_1:
 L_CMP_T_2:
     iconst_1
 L_CMP_E_2:
-    istore 17
-    iload 16
-    iload 17
+    istore 23
+    iload 22
+    iload 23
     iand
-    istore 18
-    iload 15
+    istore 24
+    iload 21
     iconst_1
     ixor
-    istore 19
-    iload 18
-    iload 19
+    istore 25
+    iload 24
+    iload 25
     ior
-    istore 20
-    iload 20
+    istore 26
+    iload 26
     ifne L2
     getstatic java/lang/System/out Ljava/io/PrintStream;
     ldc "Aplica para tarifa general."
@@ -149,20 +189,47 @@ L2:
     ldc "Aplica para tarifa joven."
     invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V
 L3:
-    iload 15
-    iconst_1
-    ixor
-    istore 21
-    iload 21
-    ifne L4
-    getstatic java/lang/System/out Ljava/io/PrintStream;
-    ldc "Beca activa confirmada."
-    invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V
-    goto L5
+    ldc 1
+    istore 27
 L4:
+    iload 27
+    ldc 3
+    if_icmple L_CMP_T_3
+    iconst_0
+    goto L_CMP_E_3
+L_CMP_T_3:
+    iconst_1
+L_CMP_E_3:
+    istore 28
+    iload 28
+    ifeq L5
     getstatic java/lang/System/out Ljava/io/PrintStream;
-    ldc "Sin beca activa."
-    invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V
+    ldc "Iteracion while: "
+    invokevirtual java/io/PrintStream/print(Ljava/lang/String;)V
+    getstatic java/lang/System/out Ljava/io/PrintStream;
+    iload 27
+    invokevirtual java/io/PrintStream/println(I)V
+    iload 27
+    ldc 1
+    iadd
+    istore 27
+    goto L4
 L5:
+    iload 27
+    istore 29
+    iload 29
+    ldc 4
+    if_icmpeq L6
+    goto L7
+L6:
+    getstatic java/lang/System/out Ljava/io/PrintStream;
+    ldc "When correcto: contador llego a 4."
+    invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V
+    goto L8
+L7:
+    getstatic java/lang/System/out Ljava/io/PrintStream;
+    ldc "When: valor inesperado."
+    invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V
+L8:
     return
 .end method

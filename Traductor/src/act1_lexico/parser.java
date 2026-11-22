@@ -873,6 +873,7 @@ public class parser extends java_cup.runtime.lr_parser {
     public int totalErrores = 0;
     public int totalErroresSemanticos = 0;
     public boolean errorFatal = false;
+    public boolean metodoTieneReturn = false;
     
     public int ultimaLinea = -1;
     public int ultimaColumna = -1;
@@ -1330,6 +1331,7 @@ class CUP$parser$actions {
 		String id = (String)((java_cup.runtime.Symbol) CUP$parser$stack.peek()).value;
 		
                      String etiq = parser.generarEtiq();
+                     parser.metodoTieneReturn = false;
                      parser.tablaSimbolos.agregarSimbolo(id, "METODO", "void", "N/A", idleft, idright);
                      Simbolo s = parser.tablaSimbolos.obtenerSimbolo(id);
                      if (s != null) s.setEtiquetaC3D(etiq);
@@ -1346,7 +1348,15 @@ class CUP$parser$actions {
           case 25: // metodo ::= marcador_metodo LPAREN parametros_optativos RPAREN tipo_retorno_optativo LBRACE cuerpo_metodo RBRACE 
             {
               Object RESULT =null;
+		int mleft = ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-7)).left;
+		int mright = ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-7)).right;
+		Object m = (Object)((java_cup.runtime.Symbol) CUP$parser$stack.elementAt(CUP$parser$top-7)).value;
 		 
+             String tipoRet = parser.tablaSimbolos.getTipoRetornoActual();
+             if (!tipoRet.equals("void") && !parser.metodoTieneReturn) {
+                 String nomMet = parser.tablaSimbolos.getAmbitoActual();
+                 parser.reportarErrorSemantico("El metodo '" + nomMet + "' declara un retorno de tipo '" + tipoRet + "' pero no contiene una sentencia 'return'.", mleft, mright);
+             }
              parser.tablaSimbolos.salirAmbito(); 
              System.out.println("Regla reconocida: definicion_metodo"); 
          
@@ -2234,6 +2244,9 @@ class CUP$parser$actions {
                 if (tipo.equals("error")) {
                     parser.codigoIntermedio.add("if type(" + e1.lugar + ") != " + e2.tipo + " then error \"Type mismatch\" # Operacion bloqueada");
                     RESULT = new NodoExp("error", "error");
+                } else if (e2.lugar.equals("0") || e2.lugar.equals("0.0") || e2.lugar.equals("0.0f") || e2.lugar.equals("0.0d")) {
+                    parser.reportarErrorSemantico("Error matematico: Division entre cero no permitida.", e2left, e2right);
+                    RESULT = new NodoExp("error", "error");
                 } else {
                     parser.codigoIntermedio.add("if " + e2.lugar + " == 0 then error \"Division by zero\"");
                     String t = parser.generarTemp();
@@ -2259,6 +2272,9 @@ class CUP$parser$actions {
                 String tipo = parser.validarOperacionAritmetica(e1.tipo, e2.tipo, "%", e1left, e1right);
                 if (tipo.equals("error")) {
                     parser.codigoIntermedio.add("if type(" + e1.lugar + ") != " + e2.tipo + " then error \"Type mismatch\" # Operacion bloqueada");
+                    RESULT = new NodoExp("error", "error");
+                } else if (e2.lugar.equals("0") || e2.lugar.equals("0.0") || e2.lugar.equals("0.0f") || e2.lugar.equals("0.0d")) {
+                    parser.reportarErrorSemantico("Error matematico: Modulo entre cero no permitido.", e2left, e2right);
                     RESULT = new NodoExp("error", "error");
                 } else {
                     parser.codigoIntermedio.add("if " + e2.lugar + " == 0 then error \"Division by zero\"");
@@ -2510,6 +2526,9 @@ class CUP$parser$actions {
                     parser.reportarErrorSemantico("El identificador '" + id + "' no ha sido declarado en este ambito.", idleft, idright);
                     tipoResultante = "error";
                 } else {
+                    if (s.getValor() != null && s.getValor().equals("Sin inicializar")) {
+                        parser.reportarErrorSemantico("La variable '" + id + "' se esta utilizando antes de ser inicializada.", idleft, idright);
+                    }
                     tipoResultante = s.getTipoDato();
                 }
                 RESULT = new NodoExp(id.toString(), tipoResultante);
@@ -2676,10 +2695,13 @@ class CUP$parser$actions {
                      if (!parser.sonTiposCompatibles(s.getTipoDato(), exp.tipo)) {
                          parser.reportarErrorSemantico("Incompatibilidad de tipos: No se puede asignar '" + exp.tipo + "' a '" + id + "' de tipo '" + s.getTipoDato() + "'.", idleft, idright);
                          parser.codigoIntermedio.add("# Asignacion a '" + id + "' bloqueada por incompatibilidad de tipos");
-                     } else if (exp.lugar.equals("readln")) {
-                         parser.codigoIntermedio.add("read " + id);
                      } else {
-                         parser.codigoIntermedio.add(id + " = " + exp.lugar);
+                         s.setValor("Asignado");
+                         if (exp.lugar.equals("readln")) {
+                             parser.codigoIntermedio.add("read " + id);
+                         } else {
+                             parser.codigoIntermedio.add(id + " = " + exp.lugar);
+                         }
                      }
                  } else {
                      parser.codigoIntermedio.add("# Asignacion a '" + id + "' bloqueada por error en la expresion");
@@ -2976,9 +2998,10 @@ class CUP$parser$actions {
 		int eright = ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-1)).right;
 		NodoExp e = (NodoExp)((java_cup.runtime.Symbol) CUP$parser$stack.elementAt(CUP$parser$top-1)).value;
 		 
+              parser.metodoTieneReturn = true;
               parser.validarRetorno(e.tipo, rleft, rright);
               parser.codigoIntermedio.add("return " + e.lugar);
-              System.out.println("Regla reconocida: retorno con expresion"); 
+              System.out.println("Regla reconocida: retorno con expresion");
           
               CUP$parser$result = parser.getSymbolFactory().newSymbol("retorno",37, ((java_cup.runtime.Symbol)CUP$parser$stack.elementAt(CUP$parser$top-2)), ((java_cup.runtime.Symbol)CUP$parser$stack.peek()), RESULT);
             }

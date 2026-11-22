@@ -62,4 +62,7 @@ public class Simbolo {
     public void setEtiquetaC3D(String etiquetaC3D) {
         this.etiquetaC3D = etiquetaC3D;
     }
+    public void setValor(String valor) { 
+        this.valor = valor; 
+    }
 }

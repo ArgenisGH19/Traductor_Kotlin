@@ -52,11 +52,12 @@ public class Traductor {
             analizador.parse();
 
             System.out.println("\n========================================================");
-            if (analizador.totalErrores == 0 && analizador.totalErroresSemanticos == 0) {
+            if (lexer.totalErroresLexicos == 0 && analizador.totalErrores == 0 && analizador.totalErroresSemanticos == 0) {
                 System.out.println("ANALISIS FINALIZADO CORRECTAMENTE");
-                System.out.println("Errores sintacticos: 0 | Errores semanticos: 0");
+                System.out.println("Errores lexicos: 0 | Errores sintacticos: 0 | Errores semanticos: 0");
             } else {
                 System.out.println("ANALISIS COMPLETADO CON ERRORES");
+                System.out.println("Errores lexicos: " + lexer.totalErroresLexicos);
                 System.out.println("Errores sintacticos: " + analizador.totalErrores);
                 System.out.println("Errores semanticos: " + analizador.totalErroresSemanticos);
                 System.out.println("Generacion de bytecode cancelada por errores en el fuente.");

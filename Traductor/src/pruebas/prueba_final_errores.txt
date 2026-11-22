@@ -1,0 +1,106 @@
+class PruebaErrores {
+
+    // --- MÉTODO 1: Retorno incompatible ---
+    fun calcular(a: Int, b: Int): Int {
+        var bono: Int = 10;
+        if (a > 5) {
+            bono = bono + 5;
+        }
+        return "texto_invalido";             // [1] Semántico: Retorno String en método int
+    }
+
+    // --- MÉTODO 2: Método con tipo de retorno pero sin sentencia 'return' ---
+    fun sinRetorno(x: Int): Int {
+        var doble: Int = x * 2;
+        println(doble);
+        // [2] Semántico (a verificar): Falta sentencia 'return' en método con retorno 'int'
+    }
+
+    // --- MÉTODO 3: Método duplicado y colisión con parámetro ---
+    fun calcular(a: Int, b: Int): Int {      // [3] Semántico: Método 'calcular' ya declarado en la clase
+        var a: Int = 99;                     // [4] Semántico: Variable local 'a' duplica el parámetro 'a'
+        return a;
+    }
+
+    fun main() {
+        // ==========================================
+        // BLOQUE 1: ERRORES LÉXICOS
+        // ==========================================
+        var valido: Int = 10;
+        var 123numero: Int = 20;             // [5] Léxico: Identificador iniciado con dígito
+        var precio@: Int = 30;               // [6] Léxico: Carácter '@' no permitido
+        var saludo: String = "Sin cerrar     // [7] Léxico: Cadena de texto sin cerrar
+        var extra: Int = 5 # 2;              // [8] Léxico: Carácter '#' no permitido
+        var letraMala: Char = 'abc';         // [9] Léxico: Literal Char con más de un carácter
+        var raro: Int = 10 ~ 2;              // [10] Léxico: Carácter '~' no permitido
+
+        // ==========================================
+        // BLOQUE 2: ERRORES SINTÁCTICOS (RECUPERABLES)
+        // ==========================================
+        var calc: Int = (valido + 10 * 2;    // [11] Sintáctico: Falta paréntesis de cierre ')'
+        valido = valido + 1;                 // Sentencia puente para sincronización limpia
+
+        var = 100;                           // [12] Sintáctico: Falta identificador en declaración
+        valido = valido + 1;                 // Sentencia puente
+
+        var opMala: Int = 10 + * 5;          // [13] Sintáctico: Operadores consecutivos '+ *'
+        valido = valido + 1;                 // Sentencia puente
+
+        var sinPuntoYComa: Int = 50          // [14] Sintáctico: Falta ';' al final de la sentencia
+        valido = valido + 1;                 // Sentencia puente
+
+        if () {                              // [15] Sintáctico: Condición vacía dentro de 'if'
+            println(valido);
+        }
+
+        // ==========================================
+        // BLOQUE 3: ERRORES SEMÁNTICOS DE ÁMBITO Y ESTADO
+        // ==========================================
+        val limite: Int = 50;
+        limite = 80;                         // [16] Semántico: Reasignación de constante 'val'
+
+        var edad: Int = "veinte";            // [17] Semántico: Incompatibilidad de tipos (String -> int)
+        var edad: Int = 25;                  // [18] Semántico: Variable 'edad' ya declarada en 'main'
+
+        noDeclarada = 99;                    // [19] Semántico: Identificador no declarado
+
+        var sinInicializar: Int;
+        var usoTemprano: Int = sinInicializar + 5; // [20] Semántico (a verificar): Uso de variable sin inicializar
+
+        if (valido > 0) {
+            var soloLocal: Int = 77;
+            println(soloLocal);
+        }
+        println(soloLocal);                  // [21] Semántico (a verificar): Variable 'soloLocal' fuera de su ámbito
+
+        // ==========================================
+        // BLOQUE 4: TIPOS EN OPERADORES Y CONTROL DE FLUJO
+        // ==========================================
+        var mezcla: Int = valido + "hola";   // [22] Semántico: Operador '+' inválido entre int y String
+        var bandera: Boolean = 10 + 20;      // [23] Semántico: Asignación de int a boolean
+        var logicoMalo: Boolean = 5 && true; // [24] Semántico: Operador lógico '&&' requiere booleanos
+        var compMala: Boolean = "texto" > 5; // [25] Semántico: Comparación '>' inválida entre String e int
+        var divCero: Int = 100 / 0;          // [26] Semántico (a verificar): División entre cero literal
+
+        if (valido + 5) {                    // [27] Semántico: Condición del 'if' no es boolean
+            println(valido);
+        }
+
+        while (valido * 2) {                 // [28] Semántico: Condición del 'while' no es boolean
+            println(valido);
+        }
+
+        break;                               // [29] Semántico: 'break' fuera de ciclo
+        continue;                            // [30] Semántico: 'continue' fuera de ciclo
+
+        // ==========================================
+        // BLOQUE 5: CONVENCIONES Y LLAMADAS A MÉTODOS
+        // ==========================================
+        var Mi_Variable: Int = 5;            // [31] Convención: No cumple camelCase
+        var resUno: Int = calcular(10);      // [32] Semántico: Faltan argumentos (1 de 2)
+        var resDos: Int = calcular(10, "x"); // [33] Semántico: Argumento 2 incompatible (String vs int)
+        var resTres: Int = noExiste(5);      // [34] Semántico: Método no declarado
+
+        return 10;                           // [35] Semántico (a verificar): 'return' con valor en método 'void'
+    }
+}

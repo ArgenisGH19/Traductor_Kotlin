@@ -13,6 +13,7 @@ parser code {:
     public int totalErrores = 0;
     public int totalErroresSemanticos = 0;
     public boolean errorFatal = false;
+    public boolean metodoTieneReturn = false;
     
     public int ultimaLinea = -1;
     public int ultimaColumna = -1;
@@ -300,6 +301,7 @@ miembro_clase ::= metodo | asignacion ;
 marcador_metodo ::= FUN IDENTIFIER:id
                   {:
                      String etiq = parser.generarEtiq();
+                     parser.metodoTieneReturn = false;
                      parser.tablaSimbolos.agregarSimbolo(id, "METODO", "void", "N/A", idleft, idright);
                      Simbolo s = parser.tablaSimbolos.obtenerSimbolo(id);
                      if (s != null) s.setEtiquetaC3D(etiq);
@@ -310,8 +312,13 @@ marcador_metodo ::= FUN IDENTIFIER:id
                   :}
                   ;
 
-metodo ::= marcador_metodo LPAREN parametros_optativos RPAREN tipo_retorno_optativo LBRACE cuerpo_metodo RBRACE
+metodo ::= marcador_metodo:m LPAREN parametros_optativos RPAREN tipo_retorno_optativo LBRACE cuerpo_metodo RBRACE
          {: 
+             String tipoRet = parser.tablaSimbolos.getTipoRetornoActual();
+             if (!tipoRet.equals("void") && !parser.metodoTieneReturn) {
+                 String nomMet = parser.tablaSimbolos.getAmbitoActual();
+                 parser.reportarErrorSemantico("El metodo '" + nomMet + "' declara un retorno de tipo '" + tipoRet + "' pero no contiene una sentencia 'return'.", mleft, mright);
+             }
              parser.tablaSimbolos.salirAmbito(); 
              System.out.println("Regla reconocida: definicion_metodo"); 
          :}
@@ -644,6 +651,9 @@ expresion ::= expresion:e1 PLUS expresion:e2
                 if (tipo.equals("error")) {
                     parser.codigoIntermedio.add("if type(" + e1.lugar + ") != " + e2.tipo + " then error \"Type mismatch\" # Operacion bloqueada");
                     RESULT = new NodoExp("error", "error");
+                } else if (e2.lugar.equals("0") || e2.lugar.equals("0.0") || e2.lugar.equals("0.0f") || e2.lugar.equals("0.0d")) {
+                    parser.reportarErrorSemantico("Error matematico: Division entre cero no permitida.", e2left, e2right);
+                    RESULT = new NodoExp("error", "error");
                 } else {
                     parser.codigoIntermedio.add("if " + e2.lugar + " == 0 then error \"Division by zero\"");
                     String t = parser.generarTemp();
@@ -656,6 +666,9 @@ expresion ::= expresion:e1 PLUS expresion:e2
                 String tipo = parser.validarOperacionAritmetica(e1.tipo, e2.tipo, "%", e1left, e1right);
                 if (tipo.equals("error")) {
                     parser.codigoIntermedio.add("if type(" + e1.lugar + ") != " + e2.tipo + " then error \"Type mismatch\" # Operacion bloqueada");
+                    RESULT = new NodoExp("error", "error");
+                } else if (e2.lugar.equals("0") || e2.lugar.equals("0.0") || e2.lugar.equals("0.0f") || e2.lugar.equals("0.0d")) {
+                    parser.reportarErrorSemantico("Error matematico: Modulo entre cero no permitido.", e2left, e2right);
                     RESULT = new NodoExp("error", "error");
                 } else {
                     parser.codigoIntermedio.add("if " + e2.lugar + " == 0 then error \"Division by zero\"");
@@ -772,6 +785,9 @@ expresion ::= expresion:e1 PLUS expresion:e2
                     parser.reportarErrorSemantico("El identificador '" + id + "' no ha sido declarado en este ambito.", idleft, idright);
                     tipoResultante = "error";
                 } else {
+                    if (s.getValor() != null && s.getValor().equals("Sin inicializar")) {
+                        parser.reportarErrorSemantico("La variable '" + id + "' se esta utilizando antes de ser inicializada.", idleft, idright);
+                    }
                     tipoResultante = s.getTipoDato();
                 }
                 RESULT = new NodoExp(id.toString(), tipoResultante);
@@ -811,10 +827,13 @@ asignacion ::= IDENTIFIER:id EQ expresion:exp SEMICOLON
                      if (!parser.sonTiposCompatibles(s.getTipoDato(), exp.tipo)) {
                          parser.reportarErrorSemantico("Incompatibilidad de tipos: No se puede asignar '" + exp.tipo + "' a '" + id + "' de tipo '" + s.getTipoDato() + "'.", idleft, idright);
                          parser.codigoIntermedio.add("# Asignacion a '" + id + "' bloqueada por incompatibilidad de tipos");
-                     } else if (exp.lugar.equals("readln")) {
-                         parser.codigoIntermedio.add("read " + id);
                      } else {
-                         parser.codigoIntermedio.add(id + " = " + exp.lugar);
+                         s.setValor("Asignado");
+                         if (exp.lugar.equals("readln")) {
+                             parser.codigoIntermedio.add("read " + id);
+                         } else {
+                             parser.codigoIntermedio.add(id + " = " + exp.lugar);
+                         }
                      }
                  } else {
                      parser.codigoIntermedio.add("# Asignacion a '" + id + "' bloqueada por error en la expresion");
@@ -895,9 +914,10 @@ lista_elementos_ln ::= elemento:e {: parser.codigoIntermedio.add("println " + e.
 
 retorno ::= RETURN:r expresion:e SEMICOLON 
           {: 
+              parser.metodoTieneReturn = true;
               parser.validarRetorno(e.tipo, rleft, rright);
               parser.codigoIntermedio.add("return " + e.lugar);
-              System.out.println("Regla reconocida: retorno con expresion"); 
+              System.out.println("Regla reconocida: retorno con expresion");
           :}
           | RETURN:r SEMICOLON 
           {: 

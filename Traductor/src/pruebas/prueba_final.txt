@@ -2,7 +2,7 @@ package com.pruebas;
 
 class PruebaLogicaOpt {
     fun main() {
-        println("=== PRUEBA DE LOGICA, DECIMALES Y OPTIMIZADOR ===");
+        println("=== PRUEBA INTEGRAL DE LOGICA, CICLOS Y OPTIMIZADOR ===");
 
         // Variables muertas y sobrescrituras para validar OptimizadorC3D
         var basura: int = 999;
@@ -11,18 +11,30 @@ class PruebaLogicaOpt {
 
         // Simplificacion algebraica en cadena y parentesis anidados
         var base: int = temp;
-        var paso1: int = base + 5;
-        var paso2: int = paso1 + 10;
-        var formula: int = (paso2 + 10) * (6 - 4);
+        var pasoUno: int = base + 5;
+        var pasoDos: int = pasoUno + 10;
+        var formula: int = (pasoDos + 10) * (6 - 4);
         print("Resultado formula (debe ser 100): ");
         println(formula);
+
+        // Division y modulo validos
+        var cociente: int = 20 / 4;
+        var residuo: int = 21 % 4;
+        print("Division 20/4 (debe ser 5): ");
+        println(cociente);
+        print("Modulo 21%4 (debe ser 1): ");
+        println(residuo);
+
+        // Variable declarada sin inicializar y asignada despues
+        var bono: double;
+        bono = 12.0;
 
         // Decimales (double) y constante inmutable (val)
         val tasa: double = 0.16;
         var subtotal: double = 200.0;
         var iva: double = subtotal * tasa;
-        var totalPagar: double = subtotal + iva;
-        print("Total con IVA (debe ser 232.0): ");
+        var totalPagar: double = (subtotal + iva) - bono;
+        print("Total con IVA menos bono de 12 (debe ser 220.0): ");
         println(totalPagar);
 
         // Expresiones logicas compuestas (&&, ||, !)
@@ -36,10 +48,21 @@ class PruebaLogicaOpt {
             println("Aplica para tarifa general.");
         }
 
-        if (!tieneBeca) {
-            println("Sin beca activa.");
-        } else {
-            println("Beca activa confirmada.");
+        // Ciclo while y seleccion multiple when
+        var contador: int = 1;
+        while (contador <= 3) {
+            print("Iteracion while: ");
+            println(contador);
+            contador = contador + 1;
+        }
+
+        when (contador) {
+            4 -> {
+                println("When correcto: contador llego a 4.");
+            }
+            else -> {
+                println("When: valor inesperado.");
+            }
         }
     }
 }
