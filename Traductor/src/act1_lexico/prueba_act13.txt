@@ -24,8 +24,9 @@ class ControlFlujo {
             z = x;
         } else {
             z = y;
-        }
+        } //Decompilar
 
+..Bytecode generado (java -c decompilado)
         // 2. Estructura switch (when en Kotlin)
         var n: int = 1;
         var resultTexto: String = "";

@@ -155,9 +155,10 @@ parser code {:
     }
 
     public boolean sonTiposCompatibles(String tipoDestino, String tipoValor) {
-        if (tipoValor.equals("error")) return false; 
+        if (tipoValor.equals("error")) return false;
+        if (tipoValor.equals("input")) return true; // Permite asignar readln() a cualquier tipo soportado
         if (tipoDestino.equals(tipoValor)) return true;
-        if (tipoDestino.equals("float") && tipoValor.equals("int")) return true; 
+        if (tipoDestino.equals("float") && tipoValor.equals("int")) return true;
         if (tipoDestino.equals("double") && (tipoValor.equals("int") || tipoValor.equals("float"))) return true;
         return false;
     }
@@ -202,16 +203,16 @@ parser code {:
     }
 :};
 
-// --- DECLARACIÓN DE TERMINALES ---
+// --- DECLARACIÓN DE TERMINALES (SIN DUPLICADOS) ---
 terminal String PACKAGE, IMPORT, CLASS, FUN, VAL, VAR, IF, ELSE, WHEN, WHILE, DO, FOR, IN;
 terminal String PUBLIC, PRIVATE, PROTECTED, INTERNAL, FINAL, RETURN, NULL, TRUE, FALSE;
 terminal String PLUS, MINUS, MULT, DIV, MOD, EQ, EQEQ, NEQ, LT, LE, GT, GE, AND, OR, NOT;
 terminal String ARROW, RANGE, LPAREN, RPAREN, LBRACE, RBRACE, LBRACK, RBRACK, COMMA, SEMICOLON, DOT, COLON;
 terminal String INT, FLOAT, DOUBLE, CHAR, BOOLEAN, STRING;
-terminal String LEER, ESCRIBIR, BREAK, CONTINUE;
+terminal String LEER, ESCRIBIR, PRINT, PRINTLN, READLN, BREAK, CONTINUE;
 terminal String IDENTIFIER, INT_LITERAL, FLOAT_LITERAL, DOUBLE_LITERAL, CHAR_LITERAL, STRING_LITERAL, ERROR;
 
-// --- DECLARACIÓN DE NO TERMINALES ---
+// --- DECLARACIÓN DE NO TERMINALES (SIN DUPLICADOS) ---
 non terminal programa, estructura_paquete, lista_importaciones, importacion, ruta;
 non terminal lista_clases, clase_principal, marcador_clase, lista_miembros, miembro_clase;
 non terminal metodo, marcador_metodo, cuerpo_metodo, lista_sentencias, sentencia, bloque;
@@ -221,7 +222,7 @@ non terminal ciclo_mientras, encabezado_while, m_while_cond;
 non terminal ciclo_hacer_mientras, encabezado_do;
 non terminal ciclo_para, encabezado_para, marcador_ciclo;
 non terminal lectura, escritura, asignacion, retorno;
-non terminal lista_identificadores, lista_elementos;
+non terminal lista_identificadores, lista_elementos, lista_elementos_ln;
 non terminal parametros_optativos, lista_parametros, parametro, tipo_retorno_optativo;
 
 non terminal NodoExp expresion, condicion, elemento, llamada_metodo;
@@ -783,6 +784,7 @@ expresion ::= expresion:e1 PLUS expresion:e2
             | TRUE {: RESULT = new NodoExp("true", "boolean"); :}
             | FALSE {: RESULT = new NodoExp("false", "boolean"); :}
             | NULL {: RESULT = new NodoExp("null", "null"); :}
+            | READLN LPAREN RPAREN {: RESULT = new NodoExp("readln", "input"); :}
             | llamada_metodo:m {: RESULT = m; System.out.println("Regla reconocida: llamada utilizada dentro de expresion"); :}
             ;
 
@@ -797,7 +799,7 @@ condicion ::= expresion:e
 
 elemento ::= expresion:e {: RESULT = e; :};
 
-// --- DECLARACIONES Y ASIGNACIONES ---
+// --- DECLARACIONES Y ASIGNACIONES (CON SOPORTE PARA READLN) ---
 asignacion ::= IDENTIFIER:id EQ expresion:exp SEMICOLON 
              {: 
                  Simbolo s = parser.tablaSimbolos.obtenerSimbolo(id);
@@ -809,6 +811,8 @@ asignacion ::= IDENTIFIER:id EQ expresion:exp SEMICOLON
                      if (!parser.sonTiposCompatibles(s.getTipoDato(), exp.tipo)) {
                          parser.reportarErrorSemantico("Incompatibilidad de tipos: No se puede asignar '" + exp.tipo + "' a '" + id + "' de tipo '" + s.getTipoDato() + "'.", idleft, idright);
                          parser.codigoIntermedio.add("# Asignacion a '" + id + "' bloqueada por incompatibilidad de tipos");
+                     } else if (exp.lugar.equals("readln")) {
+                         parser.codigoIntermedio.add("read " + id);
                      } else {
                          parser.codigoIntermedio.add(id + " = " + exp.lugar);
                      }
@@ -825,6 +829,8 @@ asignacion ::= IDENTIFIER:id EQ expresion:exp SEMICOLON
                      if (!parser.sonTiposCompatibles(tipo, exp.tipo)) {
                          parser.reportarErrorSemantico("Incompatibilidad de tipos al inicializar la variable '" + id + "'. Se esperaba '" + tipo + "' pero se recibio '" + exp.tipo + "'.", idleft, idright);
                          parser.codigoIntermedio.add("# Inicializacion de '" + id + "' bloqueada por incompatibilidad de tipos");
+                     } else if (exp.lugar.equals("readln")) {
+                         parser.codigoIntermedio.add("read " + id);
                      } else {
                          parser.codigoIntermedio.add(id + " = " + exp.lugar);
                      }
@@ -846,6 +852,8 @@ asignacion ::= IDENTIFIER:id EQ expresion:exp SEMICOLON
                      if (!parser.sonTiposCompatibles(tipo, exp.tipo)) {
                          parser.reportarErrorSemantico("Incompatibilidad de tipos al inicializar la constante '" + id + "'. Se esperaba '" + tipo + "' pero se recibio '" + exp.tipo + "'.", idleft, idright);
                          parser.codigoIntermedio.add("# Inicializacion de constante '" + id + "' bloqueada por incompatibilidad de tipos");
+                     } else if (exp.lugar.equals("readln")) {
+                         parser.codigoIntermedio.add("read " + id);
                      } else {
                          parser.codigoIntermedio.add(id + " = " + exp.lugar);
                      }
@@ -869,13 +877,21 @@ lista_identificadores ::= IDENTIFIER:id {: parser.codigoIntermedio.add("read " +
                         | lista_identificadores COMMA error {: parser.imprimirDiagnostico("Coma duplicada o elemento faltante en lista de lectura.", "Un identificador valido.", "Elimina la coma sobrante o agrega el identificador.", "leer(var1, var2);"); :}
                         ;
 
-escritura ::= ESCRIBIR LPAREN lista_elementos RPAREN SEMICOLON {: System.out.println("Regla reconocida: sentencia de escritura"); :}
-            | ESCRIBIR LPAREN lista_elementos error SEMICOLON {: parser.imprimirDiagnostico("No se encontro el parentesis de cierre en la escritura.", "Un parentesis ')'.", "Agrega el parentesis de cierre antes del punto y coma.", "escribir(\"Hola\");"); :}
+escritura ::= ESCRIBIR LPAREN lista_elementos_ln RPAREN SEMICOLON {: System.out.println("Regla reconocida: sentencia de escritura (escribir)"); :}
+            | PRINTLN LPAREN lista_elementos_ln RPAREN SEMICOLON {: System.out.println("Regla reconocida: sentencia de escritura (println)"); :}
+            | PRINTLN LPAREN RPAREN SEMICOLON {: parser.codigoIntermedio.add("println \"\""); System.out.println("Regla reconocida: println vacio"); :}
+            | PRINT LPAREN lista_elementos RPAREN SEMICOLON {: System.out.println("Regla reconocida: sentencia de escritura (print)"); :}
+            | ESCRIBIR LPAREN lista_elementos_ln error SEMICOLON {: parser.imprimirDiagnostico("No se encontro el parentesis de cierre en la escritura.", "Un parentesis ')'.", "Agrega el parentesis de cierre antes del punto y coma.", "escribir(\"Hola\");"); :}
+            | PRINTLN LPAREN lista_elementos_ln error SEMICOLON {: parser.imprimirDiagnostico("No se encontro el parentesis de cierre en println.", "Un parentesis ')'.", "Agrega el parentesis de cierre antes del punto y coma.", "println(d);"); :}
+            | PRINT LPAREN lista_elementos error SEMICOLON {: parser.imprimirDiagnostico("No se encontro el parentesis de cierre en print.", "Un parentesis ')'.", "Agrega el parentesis de cierre antes del punto y coma.", "print(\"Valor: \");"); :}
             | ESCRIBIR error SEMICOLON {: parser.imprimirDiagnostico("Estructura invalida en sentencia de escritura.", "Parentesis y contenido a escribir.", "Verifica la sintaxis de la instruccion escribir.", "escribir(\"Hola\");"); :}
             ;
 
 lista_elementos ::= elemento:e {: parser.codigoIntermedio.add("print " + e.lugar); :}
                   | lista_elementos COMMA elemento:e {: parser.codigoIntermedio.add("print " + e.lugar); :} ;
+
+lista_elementos_ln ::= elemento:e {: parser.codigoIntermedio.add("println " + e.lugar); :}
+                     | lista_elementos_ln COMMA elemento:e {: parser.codigoIntermedio.add("println " + e.lugar); :} ;
 
 retorno ::= RETURN:r expresion:e SEMICOLON 
           {: 

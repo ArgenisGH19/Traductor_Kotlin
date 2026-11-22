@@ -1,0 +1,45 @@
+package com.pruebas;
+
+class PruebaLogicaOpt {
+    fun main() {
+        println("=== PRUEBA DE LOGICA, DECIMALES Y OPTIMIZADOR ===");
+
+        // Variables muertas y sobrescrituras para validar OptimizadorC3D
+        var basura: int = 999;
+        var temp: int = 10;
+        temp = 25;
+
+        // Simplificacion algebraica en cadena y parentesis anidados
+        var base: int = temp;
+        var paso1: int = base + 5;
+        var paso2: int = paso1 + 10;
+        var formula: int = (paso2 + 10) * (6 - 4);
+        print("Resultado formula (debe ser 100): ");
+        println(formula);
+
+        // Decimales (double) y constante inmutable (val)
+        val tasa: double = 0.16;
+        var subtotal: double = 200.0;
+        var iva: double = subtotal * tasa;
+        var totalPagar: double = subtotal + iva;
+        print("Total con IVA (debe ser 232.0): ");
+        println(totalPagar);
+
+        // Expresiones logicas compuestas (&&, ||, !)
+        print("Ingresa tu edad: ");
+        var edad: int = readln();
+        var tieneBeca: boolean = true;
+
+        if ((edad >= 18 && edad <= 25) || !tieneBeca) {
+            println("Aplica para tarifa joven.");
+        } else {
+            println("Aplica para tarifa general.");
+        }
+
+        if (!tieneBeca) {
+            println("Sin beca activa.");
+        } else {
+            println("Beca activa confirmada.");
+        }
+    }
+}

@@ -77,7 +77,11 @@ Comment            = {TraditionalComment} | {EndOfLineComment}
     
     /* Sentencias Específicas */
     "leer"             { return symbol(sym.LEER, yytext()); }
+    "readln"           { return symbol(sym.READLN, yytext()); }
+    "readLine"         { return symbol(sym.READLN, yytext()); }
     "escribir"         { return symbol(sym.ESCRIBIR, yytext()); }
+    "println"          { return symbol(sym.PRINTLN, yytext()); }
+    "print"            { return symbol(sym.PRINT, yytext()); }
     "return"           { return symbol(sym.RETURN, yytext()); }
 
     /* Tipos de Datos */

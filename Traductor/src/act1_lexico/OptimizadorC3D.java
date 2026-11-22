@@ -92,6 +92,17 @@ public class OptimizadorC3D {
                 continue;
             }
 
+            // Si una variable se lee desde teclado, su valor cambia: invalidar expresiones que la usen
+            if (limpia.startsWith("read ")) {
+                String varLeida = limpia.substring(5).trim();
+                expresionesActivas.entrySet().removeIf(e ->
+                    e.getValue().equals(varLeida) || contieneVariable(e.getKey(), varLeida)
+                );
+                reemplazos.remove(varLeida);
+                resultado.add(limpia);
+                continue;
+            }
+
             if (esAsignacion(limpia)) {
                 String[] partes = limpia.split("=", 2);
                 String izq = partes[0].trim();
@@ -101,6 +112,7 @@ public class OptimizadorC3D {
                 expresionesActivas.entrySet().removeIf(e -> 
                     e.getValue().equals(izq) || contieneVariable(e.getKey(), izq)
                 );
+                reemplazos.remove(izq);
 
                 // Si el lado derecho es una operacion binaria (ej. a + b)
                 if (esOperacionBinaria(der)) {
@@ -138,7 +150,18 @@ public class OptimizadorC3D {
                     break;
                 }
 
-                // Si la variable se lee en el lado derecho o en print/return antes de reasignarse, si fue util
+                // Si se sobrescribe mediante lectura desde teclado sin haberla usado antes
+                if (linSig.startsWith("read ")) {
+                    String varLeida = linSig.substring(5).trim();
+                    if (varLeida.equals(varIzq)) {
+                        eliminar[i] = true;
+                        bitacora.add("[Asignacion Innecesaria] Se elimino '" + linActual + "' porque '" + varIzq + "' se sobrescribe con '" + linSig + "' sin haberse usado.");
+                        break;
+                    }
+                    continue;
+                }
+
+                // Si la variable se lee en el lado derecho o en print/println/return antes de reasignarse, si fue util
                 if (seUsaVariableEnInstruccion(linSig, varIzq)) {
                     break;
                 }
@@ -166,14 +189,19 @@ public class OptimizadorC3D {
     private List<String> simplificarYPropagarCopias(List<String> codigo) {
         List<String> resultado = new ArrayList<>(codigo);
 
-        // 4A. Simplificacion algebraica en cadena: v1 = x + C1  seguido de  v2 = v1 + C2  -->  v2 = x + (C1+C2)
+        // 4A. Simplificacion algebraica en cadena: v1 = x + C1 seguido de v2 = v1 + C2 --> v2 = x + (C1+C2)
         Pattern patronSumaConst = Pattern.compile("^([a-zA-Z_][a-zA-Z0-9_]*)\\s*([+\\-])\\s*(\\d+)$");
-        Map<String, String[]> sumasConstantes = new HashMap<>(); // v1 -> [base, op, const]
+        Map<String, String[]> sumasConstantes = new HashMap<>();
 
         for (int i = 0; i < resultado.size(); i++) {
             String linea = resultado.get(i).trim();
             if (linea.endsWith(":") || linea.startsWith("goto ") || linea.startsWith("if ") || linea.startsWith("#")) {
                 sumasConstantes.clear();
+                continue;
+            }
+            if (linea.startsWith("read ")) {
+                String varLeida = linea.substring(5).trim();
+                sumasConstantes.entrySet().removeIf(e -> e.getKey().equals(varLeida) || e.getValue()[0].equals(varLeida));
                 continue;
             }
             if (esAsignacion(linea)) {
@@ -239,20 +267,29 @@ public class OptimizadorC3D {
     private List<String> eliminarVariablesNoUtilizadas(List<String> codigo) {
         Set<String> variablesLeidas = new HashSet<>();
 
-        // Variables de salida/estado que deben conservarse como resultado final del programa
-        Set<String> variablesProtegidas = new HashSet<>(Arrays.asList(
-            "result", "resultado", "total", "z", "c", "edad", "resultTexto", "sum", "count", "obj"
-        ));
+        // Si el programa tiene salidas reales (println, print, return), no necesitamos proteger nombres fijos
+        boolean tieneSalida = false;
+        for (String l : codigo) {
+            String t = l.trim();
+            if (t.startsWith("println ") || t.startsWith("print ") || t.startsWith("return ")) {
+                tieneSalida = true;
+                break;
+            }
+        }
+
+        Set<String> variablesProtegidas = tieneSalida
+            ? Collections.emptySet()
+            : new HashSet<>(Arrays.asList("result", "resultado", "total", "z", "edad", "resultTexto", "sum", "count", "obj"));
 
         for (String linea : codigo) {
             String limpia = linea.trim();
-            if (limpia.isEmpty() || limpia.startsWith("#") || limpia.endsWith(":")) continue;
+            if (limpia.isEmpty() || limpia.startsWith("#") || limpia.endsWith(":") || limpia.startsWith("read ")) continue;
 
             if (esAsignacion(limpia)) {
                 String der = limpia.split("=", 2)[1].trim();
                 extraerIdentificadores(der, variablesLeidas);
             } else {
-                // Instrucciones como if, print, return, param, call
+                // Instrucciones como if, print, println, return, param, call
                 extraerIdentificadores(limpia, variablesLeidas);
             }
         }
@@ -280,23 +317,30 @@ public class OptimizadorC3D {
 
     // --- MÉTODOS AUXILIARES ---
     private boolean esAsignacion(String linea) {
-        if (linea.startsWith("#") || linea.startsWith("if ") || linea.startsWith("goto ") || 
-            linea.startsWith("call ") || linea.startsWith("param ") || linea.startsWith("print ") || 
-            linea.startsWith("read ") || linea.startsWith("return") || linea.endsWith(":")) {
+        if (linea.startsWith("#") || linea.startsWith("if ") || linea.startsWith("goto ") ||
+            linea.startsWith("call ") || linea.startsWith("param ") || linea.startsWith("print ") ||
+            linea.startsWith("println ") || linea.startsWith("read ") || linea.startsWith("return") ||
+            linea.endsWith(":")) {
             return false;
         }
-        return linea.contains("=") && !linea.contains("==") && !linea.contains("!=") && !linea.contains("<=") && !linea.contains(">=");
+        return linea.matches("^[a-zA-Z_][a-zA-Z0-9_]*\\s*=[^=].*$");
     }
 
     private boolean esOperacionBinaria(String expr) {
         return expr.matches("^[a-zA-Z0-9_\"']+\\s*(\\+|\\-|\\*|/|%|==|!=|<|>|<=|>=|&&|\\|\\|)\\s*[a-zA-Z0-9_\"']+$");
     }
 
+    private String quitarCadenas(String texto) {
+        return texto.replaceAll("\"([^\"\\\\]|\\\\.)*\"", "");
+    }
+
     private boolean contieneVariable(String expr, String var) {
-        return Pattern.compile("\\b" + Pattern.quote(var) + "\\b").matcher(expr).find();
+        String sinCadenas = quitarCadenas(expr);
+        return Pattern.compile("\\b" + Pattern.quote(var) + "\\b").matcher(sinCadenas).find();
     }
 
     private boolean seUsaVariableEnInstruccion(String linea, String var) {
+        if (linea.startsWith("read ")) return false;
         if (esAsignacion(linea)) {
             String der = linea.split("=", 2)[1].trim();
             return contieneVariable(der, var);
@@ -317,12 +361,18 @@ public class OptimizadorC3D {
 
     private String aplicarReemplazos(String linea, Map<String, String> reemplazos) {
         if (reemplazos.isEmpty()) return linea;
+        // Nunca modificar el contenido de impresiones con texto literal
+        if (linea.startsWith("print \"") || linea.startsWith("println \"") || linea.startsWith("read ")) {
+            return linea;
+        }
         if (esAsignacion(linea)) {
             String[] partes = linea.split("=", 2);
             String izq = partes[0].trim();
             String der = partes[1].trim();
-            for (Map.Entry<String, String> entry : reemplazos.entrySet()) {
-                der = der.replaceAll("\\b" + Pattern.quote(entry.getKey()) + "\\b", entry.getValue());
+            if (!der.startsWith("\"")) {
+                for (Map.Entry<String, String> entry : reemplazos.entrySet()) {
+                    der = der.replaceAll("\\b" + Pattern.quote(entry.getKey()) + "\\b", entry.getValue());
+                }
             }
             return izq + " = " + der;
         } else {
@@ -335,9 +385,10 @@ public class OptimizadorC3D {
     }
 
     private void extraerIdentificadores(String texto, Set<String> conjunto) {
-        Matcher m = Pattern.compile("\\b[a-zA-Z_][a-zA-Z0-9_]*\\b").matcher(texto);
+        String sinCadenas = quitarCadenas(texto);
+        Matcher m = Pattern.compile("\\b[a-zA-Z_][a-zA-Z0-9_]*\\b").matcher(sinCadenas);
         Set<String> reservadas = new HashSet<>(Arrays.asList(
-            "if", "not", "goto", "then", "error", "call", "param", "print", "read", "return", "create", "true", "false", "null", "type"
+            "if", "not", "goto", "then", "error", "call", "param", "print", "println", "read", "return", "create", "true", "false", "null", "type"
         ));
         while (m.find()) {
             String token = m.group();

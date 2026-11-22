@@ -8,15 +8,15 @@ package act1_lexico;
 /** CUP generated class containing symbol constants. */
 public class sym {
   /* terminals */
-  public static final int IDENTIFIER = 61;
+  public static final int IDENTIFIER = 64;
   public static final int INTERNAL = 18;
   public static final int GT = 34;
   public static final int ARROW = 39;
-  public static final int INT_LITERAL = 62;
+  public static final int INT_LITERAL = 65;
   public static final int GE = 35;
   public static final int RBRACK = 46;
   public static final int COMMA = 47;
-  public static final int DOUBLE_LITERAL = 64;
+  public static final int DOUBLE_LITERAL = 67;
   public static final int LEER = 57;
   public static final int RBRACE = 44;
   public static final int RPAREN = 42;
@@ -29,13 +29,14 @@ public class sym {
   public static final int NOT = 38;
   public static final int FALSE = 23;
   public static final int LE = 33;
-  public static final int ERROR = 67;
+  public static final int ERROR = 70;
   public static final int FINAL = 19;
   public static final int VAR = 7;
   public static final int FLOAT = 52;
   public static final int PACKAGE = 2;
   public static final int VAL = 6;
   public static final int EQ = 29;
+  public static final int PRINTLN = 60;
   public static final int MOD = 28;
   public static final int WHEN = 10;
   public static final int CLASS = 4;
@@ -50,26 +51,28 @@ public class sym {
   public static final int MULT = 26;
   public static final int RETURN = 20;
   public static final int PUBLIC = 15;
+  public static final int READLN = 61;
   public static final int ELSE = 9;
-  public static final int BREAK = 59;
+  public static final int BREAK = 62;
   public static final int FUN = 5;
   public static final int DOT = 49;
   public static final int INT = 51;
-  public static final int STRING_LITERAL = 66;
+  public static final int STRING_LITERAL = 69;
   public static final int EQEQ = 30;
   public static final int NULL = 21;
   public static final int SEMICOLON = 48;
   public static final int EOF = 0;
+  public static final int PRINT = 59;
   public static final int IMPORT = 3;
   public static final int MINUS = 25;
-  public static final int FLOAT_LITERAL = 63;
+  public static final int FLOAT_LITERAL = 66;
   public static final int IN = 14;
   public static final int OR = 37;
   public static final int error = 1;
-  public static final int CONTINUE = 60;
+  public static final int CONTINUE = 63;
   public static final int IF = 8;
   public static final int COLON = 50;
-  public static final int CHAR_LITERAL = 65;
+  public static final int CHAR_LITERAL = 68;
   public static final int STRING = 56;
   public static final int RANGE = 40;
   public static final int NEQ = 31;
@@ -136,6 +139,9 @@ public class sym {
   "STRING",
   "LEER",
   "ESCRIBIR",
+  "PRINT",
+  "PRINTLN",
+  "READLN",
   "BREAK",
   "CONTINUE",
   "IDENTIFIER",
