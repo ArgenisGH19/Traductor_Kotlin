@@ -21,7 +21,7 @@ public class Traductor {
         System.out.println("3. Rubio Calderon, Gerardo Josue");
         System.out.println("=========================================================\n");
 
-        String rutaArchivo = "src/act1_lexico/prueba_final.txt";
+        String rutaArchivo = "src/pruebas/prueba_final.txt";
         String carpetaSalida = "salida_bytecode";
         System.out.println("--- INICIANDO COMPILACION COMPLETA (KOTLIN -> JVM .CLASS) ---");
         System.out.println("Archivo fuente: " + rutaArchivo + "\n");
